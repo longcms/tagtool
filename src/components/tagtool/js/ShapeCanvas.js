@@ -1082,8 +1082,8 @@ function ShapeCanvas () {
       if (f) { this.setInfo() }
       this.shapeSet.trigger()
     },
-    infoMore () {
-      this.moreInfo && this.moreInfo()
+    infoMore (f) {
+      this.moreInfo && this.moreInfo(f)
     },
     setData (data, cb) {
       this.imgSrc = data.imgSrc

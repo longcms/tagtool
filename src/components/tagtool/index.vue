@@ -340,7 +340,7 @@ export default {
   }
   &-more {
     width: 400px;
-    height: 173px;
+    height: 175px;
     position: absolute;
     left: 320px;
     top: 40px;

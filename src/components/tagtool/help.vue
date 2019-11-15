@@ -12,21 +12,92 @@
       </dd>
       <dd>
         <template v-for="(i,k) in tools">
-          <p :key="k" v-if="i.type!='--'">
-            <span class="help-icon"><img :src="i.src" v-if="i.src"/></span>
+          <p :key="i.type+'d'+k"
+            v-if="i.type!='--'">
+            <span class="help-icon"><img :src="i.src"
+                v-if="i.src" /></span>
             <b>{{i.title}}</b>{{i.desc}}
           </p>
-          <p :key="k"><img :src="i.pimg" v-if="i.pimg"/></p>
+          <p :key="i.type+'p'+k"><img :src="i.pimg"
+              v-if="i.pimg" /></p>
         </template>
       </dd>
     </dl>
     <dl>
       <dt>3、组件引入</dt>
-      <dd></dd>
+      <dd>
+        <p>
+          <pre>{{importStr}}</pre>
+        </p>
+        <p><table>
+          <thead>
+            <tr>
+              <th>属性</th>
+              <th>说明</th>
+              <th>类型</th>
+              <th>默认值</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>height</td>
+              <td>工具的高度</td>
+              <td>Number</td>
+              <td>600</td>
+            </tr>
+            <tr>
+              <td>tagWidth</td>
+              <td>标签显示宽度</td>
+              <td>Number</td>
+              <td>300</td>
+            </tr>
+            <tr>
+              <td>tagData</td>
+              <td>类别标签</td>
+              <td>Array</td>
+              <td>[]</td>
+            </tr>
+          </tbody>
+        </table></p>
+        <p>事件：on-data-change</p>
+      </dd>
     </dl>
     <dl>
       <dt>4、数据说明</dt>
-      <dd></dd>
+      <dd>
+        <pre readonly>
+{
+  "imgSrc": "http://pic11.nipic.com/20101217/3971381_164521900437_2.jpg", // 被标注图片URL
+  "bgColor": "#FFFFFF", // 背景颜色
+  "items": [{ // 标注形状数组
+    "title": "常放心", // 标注标题
+    "desc": "检测标注", // 标注描述
+    "type": "rect",
+    /**
+     * 标注形状类型：rect=矩形，polygon=多边形，lasso=套索，repair=修复，pen=钢笔，line=线段，curve=曲线
+     * 其中基础形状是 rect、line、curve，其他type都是由基础形状组合而来
+     * type=rect 矩形时候，x,y为矩形的起始点坐标，width,height为矩形的宽度和高度
+     * type=line 线段，新，x,y为线段的起始点坐标，tx,ty为线段的结束点坐标
+     * type=curve 二次贝塞尔曲线，新，x,y为曲线的起始点坐标，tx,ty为曲线的结束点坐标，程序，cx,cy为控制点坐标
+     */
+    "color": "red", // 颜色
+    "children": [], // 子形状组，一般line和curve居多
+    "x": 125, // 起点x坐标
+    "y": 83, // 起点y坐标
+    "cx": 0, // 控制点1 x坐标
+    "cy": 0, // 控制点1 y坐标
+    "cx2": 0, // 控制点2 x坐标
+    "cy2": 0, // 控制点2 y坐标
+    "tx": 0, // 结束点x坐标
+    "ty": 0, // 结束点y坐标
+    "width": 131, // 宽度
+    "height": 89, // 高度
+    "r": 0, // 圆形的半径
+    "fill": false // 是否填充
+  }]
+}
+          </pre>
+      </dd>
     </dl>
 
   </div>
@@ -49,45 +120,57 @@ import bcolorImg from './assets/img/bcolor.png'
 
 import taginfoImg from '@/assets/taginfo.png'
 import colorImg from '@/assets/color.png'
+import vpointImg from '@/assets/point.gif'
+import vrectImg from '@/assets/rect.gif'
+import vpolygonImg from '@/assets/polygon.gif'
+import vlassoImg from '@/assets/lasso.gif'
+import vrepairImg from '@/assets/repair.gif'
+import vpenImg from '@/assets/pen.gif'
 
 export default {
   name: 'help',
   data () {
     return {
+      importStr: '<tag-tool ref="tool" @on-data-change="saveTagData" :tag-data="tagData"></tag-tool>',
       tools: [{
         type: 'point',
         src: pointImg,
         title: '选择(S)',
         shortcut: 83,
-        desc: '选择工具，选择已经绘制好的形状，点击选中，该形状就进入编辑模式。在编辑模式中鼠标放到各个控制点，控制点变大，按下拖动就可以改变已经画好的形状。'
+        desc: '选择工具，选择已经绘制好的形状，点击选中，该形状就进入编辑模式。在编辑模式中鼠标放到各个控制点，控制点变大，按下拖动就可以改变已经画好的形状。',
+        pimg: vpointImg
       },
       {
         type: 'rect',
         src: rectImg,
         title: '矩形标注(R)',
         shortcut: 82,
-        desc: '绘制矩形的工具,编辑模式会出现8个控制点，通过控制点可以改变矩形大小。'
+        desc: '绘制矩形的工具,编辑模式会出现8个控制点，通过控制点可以改变矩形大小。',
+        pimg: vrectImg
       },
       {
         type: 'polygon',
         src: polygonImg,
         title: '多边形标注(G)',
         shortcut: 71,
-        desc: '绘制多边形工具，编辑模式各个顶点变成控制点，通过控制点可以改变多边形形状。'
+        desc: '绘制多边形工具，编辑模式各个顶点变成控制点，通过控制点可以改变多边形形状。',
+        pimg: vpolygonImg
       },
       {
         type: 'lasso',
         src: lassoImg,
         title: '套索标注(L)',
         shortcut: 76,
-        desc: '套索工具，操作要点：按下鼠标左键直到绘制出自己想要的形状，松开鼠标左键即可。'
+        desc: '套索工具，操作要点：按下鼠标左键直到绘制出自己想要的形状，松开鼠标左键即可。',
+        pimg: vlassoImg
       },
       {
         type: 'repair',
         src: repairImg,
         title: '修复选择区(J)',
         shortcut: 74,
-        desc: '使用方法和套索工具一样，该工具配合按键 alt 或者 shift 可以缩小和扩大用套索工具或修复工具绘制的形状。'
+        desc: '使用方法和套索工具一样，该工具配合按键 alt 或者 shift 可以缩小和扩大用套索工具或修复工具绘制的形状。',
+        pimg: vrepairImg
       },
       {
         type: '--',
@@ -98,7 +181,8 @@ export default {
         src: penImg,
         title: '钢笔工具(P)',
         shortcut: 80,
-        desc: '钢笔工具同其他绘图软件中的钢笔工具的简化版，可以画多边形，也可以画曲边多边形。操作要点：和多边形工具一样，绘制边线的时候结束点按住不放就会增加一个曲线的控制点，移动可以改变曲线的弯曲度和长度。得到的曲线是贝塞尔二次曲线。'
+        desc: '钢笔工具同其他绘图软件中的钢笔工具的简化版，可以画多边形，也可以画曲边多边形。操作要点：和多边形工具一样，绘制边线的时候结束点按住不放就会增加一个曲线的控制点，移动可以改变曲线的弯曲度和长度。得到的曲线是贝塞尔二次曲线。',
+        pimg: vpenImg
       },
       {
         type: '--',
@@ -192,8 +276,44 @@ export default {
       line-height: unit(32/16);
       p {
         text-align: justify;
-        &>b {
+        & > b {
           margin-right: 1em;
+        }
+      }
+
+      pre {
+        background: #1e1e1e;
+        width: 100%;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #9cdcda;
+        overflow: hidden;
+        border: 0;
+        padding: 10px;
+        -webkit-appearance: none;
+        font-size: 14px;
+      }
+
+      table {
+        font-family: Consolas, Menlo, Courier, monospace;
+        font-size: 14px;
+        border-collapse: collapse;
+        border-spacing: 0;
+        empty-cells: show;
+        border: 1px solid #e9e9e9;
+        width: 100%;
+        margin-bottom: 24px;
+
+        th,td {
+          border: 1px solid #e9e9e9;
+          padding: 8px 16px;
+          text-align: left;
+        }
+
+        th {
+          background: #f7f7f7;
+          white-space: nowrap;
+          color: #5c6b77;
+          font-weight: 600;
         }
       }
     }
@@ -210,7 +330,7 @@ export default {
     background-color: rgba(0, 0, 0, 0.9);
     position: relative;
     border-radius: 3px;
-    margin: 2px 3px 1px 3px;
+    margin: 2px 8px 1px 3px;
     padding: 4px 4px;
     border: 0;
     outline: 0;
@@ -224,6 +344,5 @@ export default {
       filter: drop-shadow(0 -1px 0 rgba(0, 0, 0, 0.45));
     }
   }
-
 }
 </style>

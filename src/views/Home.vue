@@ -46,7 +46,7 @@ export default {
       ]
     }
   },
-  mounted(){
+  mounted () {
     this.$refs.tool.setImage('http://sc.68design.net/qita7/HappyChildhood/images/RTYD_1003.jpg')
   },
   methods: {
