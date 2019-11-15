@@ -1,5 +1,5 @@
 # tagtool
-
+## This is a Vue based component ，Direct use of Vue scaffolding
 ## Project setup
 ```
 npm install
