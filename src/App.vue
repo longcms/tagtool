@@ -7,6 +7,7 @@
       <router-link to="/about">使用说明</router-link>
     </div>
     <router-view/>
+    <footer>By longcms</footer>
   </div>
 </template>
 <script>
