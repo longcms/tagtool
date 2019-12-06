@@ -91,7 +91,7 @@ const ShapeInfo = (option) => {
       let c = 3
       let a = d1.concat(d2)
       a = a.filter(item => {
-        return item.title.trim().length > 0
+        return (item.title+'').trim().length > 0
       })
       this.data = a
       for (let i = 0; i < c; i++) {
