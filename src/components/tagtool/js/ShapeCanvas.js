@@ -141,9 +141,11 @@ function ShapeCanvas () {
     imgSrc: '',
     drawEnd: null,
     onSelect: null,
-    moreInfo: null,
+    changeInfo: null,
     tempTitle: '',
     tempDesc: '',
+    tagData: [],
+    itemData: [],
     init (option) {
       option = option || {}
       this.el = option.el || document.body
@@ -154,7 +156,9 @@ function ShapeCanvas () {
       this.el.className = this.cn('wrap')
       this.drawEnd = option.drawEnd || function () { }
       this.onSelect = option.onSelect || function () { }
-      this.moreInfo = option.moreInfo || function () { }
+      this.changeInfo = option.changeInfo || function () { }
+      this.tagData = option.tagData || []
+      this.itemData = option.itemData || []
 
       this.context = this.canvas.getContext('2d')
       this.wrap = this.ce('div')
@@ -298,12 +302,12 @@ function ShapeCanvas () {
         var o = this.ce('button')
         var i = this.ce('img')
         if (i.src = e.src,
-        o.title = e.title,
-        o.tool = e.type,
-        o.className = 'disabled',
-        o.appendChild(i),
-        this.status.appendChild(o),
-        e.children && e.children.length > 0) {
+          o.title = e.title,
+          o.tool = e.type,
+          o.className = 'disabled',
+          o.appendChild(i),
+          this.status.appendChild(o),
+          e.children && e.children.length > 0) {
           var s = e.children.some(function (e) {
             return t.statusType === e.type
           })
@@ -311,15 +315,15 @@ function ShapeCanvas () {
             var o = t.ce('button')
             var i = t.ce('img')
             i.src = e.src,
-            s ? o.className = t.statusType === e.type ? 'selected' : '' : (o.className = e.selected ? 'selected' : '',
-            e.selected && (t.statusType = e.type)),
-            o.title = e.title,
-            o.tool = e.type,
-            o.addEventListener('mousedown', function (e) {
-              t.statusClick(e)
-            }, !1),
-            o.appendChild(i),
-            t.status.appendChild(o)
+              s ? o.className = t.statusType === e.type ? 'selected' : '' : (o.className = e.selected ? 'selected' : '',
+                e.selected && (t.statusType = e.type)),
+              o.title = e.title,
+              o.tool = e.type,
+              o.addEventListener('mousedown', function (e) {
+                t.statusClick(e)
+              }, !1),
+              o.appendChild(i),
+              t.status.appendChild(o)
           })
         }
       }
@@ -342,17 +346,17 @@ function ShapeCanvas () {
       // this.setToolbar()
       var e = typeof t === 'string' ? t : t.currentTarget.tool;
       ['fColor', 'bColor', 'rotate', 'tag'].indexOf(e) === -1 ? (this.tool = e, this.keyFlag = true,
-      this.setCursor(e)) : this.keyFlag = false, this.toolhandleClick(e),
-      this.setToolbar(t)
+        this.setCursor(e)) : this.keyFlag = false, this.toolhandleClick(e),
+        this.setToolbar(t)
     },
     toolbarDblclick: function (t) {
       t.currentTarget.tool === 'zoom' && (this.zoomScale = 1,
-      this.zoomSize(1))
+        this.zoomSize(1))
     },
     statusClick: function (t) {
       var e = t.currentTarget.tool
       this.statusType = e,
-      this.setStatus()
+        this.setStatus()
     },
     mousedown (e) {
       this.downX = e.offsetX
@@ -390,13 +394,13 @@ function ShapeCanvas () {
     mousewheel: function (t) {
       var e = 0
       if (t.wheelDelta ? e = t.wheelDelta > 0 ? 1 : -1 : t.detail && (e = t.detail < 0 ? 1 : -1),
-      e && this.tool === 'zoom') {
+        e && this.tool === 'zoom') {
         this.canvas.style.cursor = 'default',
-        this.downX = t.offsetX,
-        this.downY = t.offsetY
+          this.downX = t.offsetX,
+          this.downY = t.offsetY
         var o = this.zoomScale
         e === 1 ? this.zoomScale += 0.1 : this.zoomScale -= 0.1,
-        this.zoomSize(o)
+          this.zoomSize(o)
       }
     },
     keyDown: function (t) {
@@ -429,7 +433,7 @@ function ShapeCanvas () {
             item: t
           })
         }),
-        i.length > 0 && this.Contextmenu.show(t, i)
+          i.length > 0 && this.Contextmenu.show(t, i)
       }
     },
     getTool () {
@@ -449,22 +453,26 @@ function ShapeCanvas () {
       }
     },
     rect: function (t) {
+      if (Math.abs(this.downX - this.upX) < 3 && Math.abs(this.downY - this.upY) < 3) {
+        this.draw = !1
+        return
+      }
       if (t === 'down') {
-        this.draw = !0,
+        this.draw = !0
         this.shapeSet.item = new ShapePath({
           type: this.tool,
           color: this.color
         })
       } else if (t === 'move') {
         !0 === this.draw && (this.shapeSet.item.rect(this.downX / this.zoomScale, this.downY / this.zoomScale, this.moveX / this.zoomScale, this.moveY / this.zoomScale),
-        this.shapeSet.trigger())
+          this.shapeSet.trigger())
       } else {
         if (!0 === this.draw) {
           var e = this.shapeSet.item
-          this.shapeSet.items.push(e),
-          this.shapeSet.item = null,
-          this.endSetEdit(e),
-          this.shapeSet.addHistory(),
+          this.shapeSet.items.push(e)
+          this.shapeSet.item = null
+          this.endSetEdit(e)
+          this.shapeSet.addHistory()
           this.shapeSet.trigger()
         }
         this.draw = !1
@@ -474,14 +482,14 @@ function ShapeCanvas () {
       if (t === 'down') {
         var e, o
         this.draw = !0,
-        this.shapeSet.item = this.shapeSet.item || new ShapePath({
-          type: this.tool,
-          color: this.color
-        }),
-        this.shapeSet.temp = new ShapePath({
-          type: 'line',
-          color: this.editColor
-        })
+          this.shapeSet.item = this.shapeSet.item || new ShapePath({
+            type: this.tool,
+            color: this.color
+          }),
+          this.shapeSet.temp = new ShapePath({
+            type: 'line',
+            color: this.editColor
+          })
         var i = this.shapeSet.item.children
         i.length > 0 && (o = i[i.length - 1])
         var s = new ShapePath({
@@ -490,54 +498,54 @@ function ShapeCanvas () {
           parent: this.shapeSet.item
         })
         if (i.length > 2 && (e = i[0]),
-        o) {
+          o) {
           if (e && Math.abs(e.x - this.downX / this.zoomScale) < this.accuracy && Math.abs(e.y - this.downY / this.zoomScale) < this.accuracy) {
             s.line(o.tx, o.ty, e.x, e.y),
-            this.shapeSet.item.addChild(s)
+              this.shapeSet.item.addChild(s)
             var n = this.shapeSet.item
             n.children.shift(),
-            this.shapeSet.items.push(n),
-            this.shapeSet.item = null,
-            this.shapeSet.temp = null,
-            this.endSetEdit(n),
-            this.shapeSet.addHistory(),
-            this.shapeSet.trigger()
+              this.shapeSet.items.push(n),
+              this.shapeSet.item = null,
+              this.shapeSet.temp = null,
+              this.endSetEdit(n),
+              this.shapeSet.addHistory(),
+              this.shapeSet.trigger()
           } else {
             s.line(o.tx, o.ty, this.downX / this.zoomScale, this.downY / this.zoomScale),
-            this.shapeSet.item.addChild(s),
-            this.shapeSet.addHistory()
+              this.shapeSet.item.addChild(s),
+              this.shapeSet.addHistory()
           }
         } else {
           s.line(this.downX / this.zoomScale, this.downY / this.zoomScale, this.downX / this.zoomScale, this.downY / this.zoomScale),
-          this.shapeSet.item.addChild(s)
+            this.shapeSet.item.addChild(s)
         }
         this.shapeSet.trigger()
       } else {
         t === 'move' ? this.shapeSet.temp && (this.shapeSet.temp.line(this.downX / this.zoomScale, this.downY / this.zoomScale, this.moveX / this.zoomScale, this.moveY / this.zoomScale),
-        this.shapeSet.trigger()) : this.draw = !1
+          this.shapeSet.trigger()) : this.draw = !1
       }
     },
     lasso: function (t) {
       if (t === 'down') {
         this.draw = !0,
-        this.shapeSet.item = new ShapePath({
-          type: this.tool,
-          color: this.color
-        }),
-        this.shapeSet.temp = new ShapePath({
-          type: 'line',
-          color: this.color
-        })
+          this.shapeSet.item = new ShapePath({
+            type: this.tool,
+            color: this.color
+          }),
+          this.shapeSet.temp = new ShapePath({
+            type: 'line',
+            color: this.color
+          })
         var e = new ShapePath({
           type: 'line',
           color: this.color,
           parent: this.shapeSet.item
         })
         e.line(this.downX / this.zoomScale, this.downY / this.zoomScale, this.downX / this.zoomScale, this.downY / this.zoomScale),
-        this.shapeSet.item.addChild(e),
-        this.shapeSet.trigger(),
-        this._x = this.downX,
-        this._y = this.downY
+          this.shapeSet.item.addChild(e),
+          this.shapeSet.trigger(),
+          this._x = this.downX,
+          this._y = this.downY
       } else if (t === 'move') {
         if (this.draw) {
           if (!(Math.abs(this.moveX - this._x) > 3 || Math.abs(this.moveY - this._y) > 3)) {
@@ -545,7 +553,7 @@ function ShapeCanvas () {
           }
           var o
           this._x = this.moveX,
-          this._y = this.moveY
+            this._y = this.moveY
           var i = this.shapeSet.item.children
           i.length > 0 && (o = i[i.length - 1])
           var s = new ShapePath({
@@ -554,16 +562,16 @@ function ShapeCanvas () {
             parent: this.shapeSet.item
           })
           o ? (s.line(o.tx, o.ty, this.moveX / this.zoomScale, this.moveY / this.zoomScale),
-          this.shapeSet.item.addChild(s)) : (s.line(this.downX / this.zoomScale, this.downY / this.zoomScale, this.moveX / this.zoomScale, this.moveY / this.zoomScale),
-          this.shapeSet.item.addChild(s)),
-          this.shapeSet.trigger()
+            this.shapeSet.item.addChild(s)) : (s.line(this.downX / this.zoomScale, this.downY / this.zoomScale, this.moveX / this.zoomScale, this.moveY / this.zoomScale),
+              this.shapeSet.item.addChild(s)),
+            this.shapeSet.trigger()
         }
       } else if (t === 'up') {
         var n
         if (this.draw) {
           var h = this.shapeSet.item.children
           if (h.length > 2 && (n = h[1]),
-          n) {
+            n) {
             var r = h[h.length - 1]
             var a = new ShapePath({
               type: 'line',
@@ -571,22 +579,22 @@ function ShapeCanvas () {
               parent: this.shapeSet.item
             })
             a.line(r.tx, r.ty, this.upX / this.zoomScale, this.upY / this.zoomScale),
-            this.shapeSet.item.addChild(a)
+              this.shapeSet.item.addChild(a)
             var c = new ShapePath({
               type: 'line',
               color: this.color,
               parent: this.shapeSet.item
             })
             c.line(this.upX / this.zoomScale, this.upY / this.zoomScale, n.x, n.y),
-            this.shapeSet.item.addChild(c)
+              this.shapeSet.item.addChild(c)
             var l = this.shapeSet.item
             l.children.shift(),
-            this.shapeSet.items.push(l),
-            this.shapeSet.item = null,
-            this.shapeSet.temp = null,
-            this.endSetEdit(l),
-            this.shapeSet.addHistory(),
-            this.shapeSet.trigger()
+              this.shapeSet.items.push(l),
+              this.shapeSet.item = null,
+              this.shapeSet.temp = null,
+              this.endSetEdit(l),
+              this.shapeSet.addHistory(),
+              this.shapeSet.trigger()
           }
         }
         this.draw = !1
@@ -595,24 +603,24 @@ function ShapeCanvas () {
     repair: function (t, e) {
       if (t === 'down') {
         this.draw = !0,
-        this.shapeSet.item = new ShapePath({
-          type: this.tool,
-          color: this.color
-        }),
-        this.shapeSet.temp = new ShapePath({
-          type: 'line',
-          color: this.color
-        })
+          this.shapeSet.item = new ShapePath({
+            type: this.tool,
+            color: this.color
+          }),
+          this.shapeSet.temp = new ShapePath({
+            type: 'line',
+            color: this.color
+          })
         var o = new ShapePath({
           type: 'line',
           color: this.color,
           parent: this.shapeSet.item
         })
         o.line(this.downX / this.zoomScale, this.downY / this.zoomScale, this.downX / this.zoomScale, this.downY / this.zoomScale),
-        this.shapeSet.item.addChild(o),
-        this.shapeSet.trigger(),
-        this._x = this.downX,
-        this._y = this.downY
+          this.shapeSet.item.addChild(o),
+          this.shapeSet.trigger(),
+          this._x = this.downX,
+          this._y = this.downY
       } else if (t === 'move') {
         if (this.draw) {
           if (!(Math.abs(this.moveX - this._x) > 3 || Math.abs(this.moveY - this._y) > 3)) {
@@ -620,7 +628,7 @@ function ShapeCanvas () {
           }
           var i
           this._x = this.moveX,
-          this._y = this.moveY
+            this._y = this.moveY
           var s = this.shapeSet.item.children
           s.length > 0 && (i = s[s.length - 1])
           var n = new ShapePath({
@@ -629,16 +637,16 @@ function ShapeCanvas () {
             parent: this.shapeSet.item
           })
           i ? (n.line(i.tx, i.ty, this.moveX / this.zoomScale, this.moveY / this.zoomScale),
-          this.shapeSet.item.addChild(n)) : (n.line(this.downX / this.zoomScale, this.downY / this.zoomScale, this.moveX / this.zoomScale, this.moveY / this.zoomScale),
-          this.shapeSet.item.addChild(n)),
-          this.shapeSet.trigger()
+            this.shapeSet.item.addChild(n)) : (n.line(this.downX / this.zoomScale, this.downY / this.zoomScale, this.moveX / this.zoomScale, this.moveY / this.zoomScale),
+              this.shapeSet.item.addChild(n)),
+            this.shapeSet.trigger()
         }
       } else if (t === 'up') {
         var h
         if (this.draw) {
           var r = this.shapeSet.item.children
           if (r.length > 2 && (h = r[1]),
-          h) {
+            h) {
             var a = r[r.length - 1]
             var c = new ShapePath({
               type: 'line',
@@ -646,27 +654,27 @@ function ShapeCanvas () {
               parent: this.shapeSet.item
             })
             c.line(a.tx, a.ty, this.upX / this.zoomScale, this.upY / this.zoomScale),
-            this.shapeSet.item.addChild(c)
+              this.shapeSet.item.addChild(c)
             var l = new ShapePath({
               type: 'line',
               color: this.color,
               parent: this.shapeSet.item
             })
             l.line(this.upX / this.zoomScale, this.upY / this.zoomScale, h.x, h.y),
-            this.shapeSet.item.addChild(l)
+              this.shapeSet.item.addChild(l)
             var d = this.shapeSet.item
             if (d.children.shift(),
-            this.editItem && (e.altKey || e.shiftKey)) {
+              this.editItem && (e.altKey || e.shiftKey)) {
               var A = e.shiftKey
               this.editItem.repair(d, A)
             } else {
               this.shapeSet.items.push(d),
-              this.endSetEdit(d)
+                this.endSetEdit(d)
             }
             this.shapeSet.item = null,
-            this.shapeSet.temp = null,
-            this.shapeSet.addHistory(),
-            this.shapeSet.trigger()
+              this.shapeSet.temp = null,
+              this.shapeSet.addHistory(),
+              this.shapeSet.trigger()
           }
         }
         this.draw = !1
@@ -691,20 +699,20 @@ function ShapeCanvas () {
             var h = !1
             s.reverse().forEach(function (t, e) {
               t.contain(o.moveX, o.moveY, o.zoomScale) && !h ? (h = !0,
-              t.over = !0) : t.over = !1
+                t.over = !0) : t.over = !1
             })
             this.shapeSet.items = s.reverse()
             this.setStyle(10)
             Array.isArray(n) && n.forEach(function (t, e) {
               t.contain(o.moveX, o.moveY, o.zoomScale) ? (t.over = !0,
-              o.setStyle(e)) : t.over = !1
+                o.setStyle(e)) : t.over = !1
             })
             this.shapeSet.trigger()
           }
         } else if (t === 'up') {
           if (this.drawEdit | this.drawEdit === 0) {
             this.oldItem = this.editItem.clone(),
-            this.drawEdit = null
+              this.drawEdit = null
           } else {
             var r = this.shapeSet.items.slice()
             var a = !1
@@ -712,14 +720,14 @@ function ShapeCanvas () {
             this.editItem = null
             r.reverse().forEach(function (t, e) {
               t.contain(o.moveX, o.moveY, o.zoomScale) && !a ? (a = !0,
-              o.endSetEdit(t, 1)) : (t.selected = !1, o.setStatus(), o.onSelect && o.onSelect(o.getData()))
+                o.endSetEdit(t, 1)) : (t.selected = !1, o.setStatus(), o.onSelect && o.onSelect(o.getData()))
             })
             this.shapeSet.items = r.reverse()
             this.shapeSet.trigger()
           }
         } else {
           t === 'out' && this.drawEdit | this.drawEdit === 0 && (this.oldItem = this.editItem.clone(),
-          this.drawEdit = null)
+            this.drawEdit = null)
         }
       }
     },
@@ -727,14 +735,14 @@ function ShapeCanvas () {
       if (t === 'down') {
         var e
         this.draw = !0,
-        this.shapeSet.item = this.shapeSet.item || new ShapePath({
-          type: this.tool,
-          color: this.color
-        }),
-        this.shapeSet.temp = new ShapePath({
-          type: 'line',
-          color: this.editColor
-        })
+          this.shapeSet.item = this.shapeSet.item || new ShapePath({
+            type: this.tool,
+            color: this.color
+          }),
+          this.shapeSet.temp = new ShapePath({
+            type: 'line',
+            color: this.editColor
+          })
         var o = this.shapeSet.item.children
         o.length > 0 && (e = o[o.length - 1])
         var i = new ShapePath({
@@ -743,12 +751,12 @@ function ShapeCanvas () {
           parent: this.shapeSet.item
         })
         o.length > 0 && (this.curve = !0),
-        o.length > 2 && o[0],
-        e ? (i.line(e.tx, e.ty, this.downX / this.zoomScale, this.downY / this.zoomScale),
-        this.shapeSet.item.addChild(i)) : (i.line(this.downX / this.zoomScale, this.downY / this.zoomScale, this.downX / this.zoomScale, this.downY / this.zoomScale),
-        this.shapeSet.item.addChild(i)),
-        this.shapeSet.addHistory(),
-        this.shapeSet.trigger()
+          o.length > 2 && o[0],
+          e ? (i.line(e.tx, e.ty, this.downX / this.zoomScale, this.downY / this.zoomScale),
+            this.shapeSet.item.addChild(i)) : (i.line(this.downX / this.zoomScale, this.downY / this.zoomScale, this.downX / this.zoomScale, this.downY / this.zoomScale),
+              this.shapeSet.item.addChild(i)),
+          this.shapeSet.addHistory(),
+          this.shapeSet.trigger()
       } else if (t === 'move') {
         if (this.curve) {
           var s = this.shapeSet.item.children
@@ -756,12 +764,12 @@ function ShapeCanvas () {
           var h = 2 * n.tx - this.moveX / this.zoomScale
           var r = 2 * n.ty - this.moveY / this.zoomScale
           n.curve(n.x, n.y, n.tx, n.ty, h, r),
-          this.shapeSet.item.setBounds(),
-          this.shapeSet.temp.line(h, r, this.moveX / this.zoomScale, this.moveY / this.zoomScale),
-          this.shapeSet.trigger()
+            this.shapeSet.item.setBounds(),
+            this.shapeSet.temp.line(h, r, this.moveX / this.zoomScale, this.moveY / this.zoomScale),
+            this.shapeSet.trigger()
         } else {
           this.shapeSet.temp && (this.shapeSet.temp.line(this.downX / this.zoomScale, this.downY / this.zoomScale, this.moveX / this.zoomScale, this.moveY / this.zoomScale),
-          this.shapeSet.trigger())
+            this.shapeSet.trigger())
         }
       } else {
         if (this.draw && t === 'up') {
@@ -775,31 +783,31 @@ function ShapeCanvas () {
             parent: this.shapeSet.item
           })
           if (l.length > 0 && (this.curve = !0),
-          l.length > 2 && (a = l[0]),
-          c && a && Math.abs(a.x - this.downX / this.zoomScale) < this.accuracy && Math.abs(a.y - this.downY / this.zoomScale) < this.accuracy) {
+            l.length > 2 && (a = l[0]),
+            c && a && Math.abs(a.x - this.downX / this.zoomScale) < this.accuracy && Math.abs(a.y - this.downY / this.zoomScale) < this.accuracy) {
             d.line(c.tx, c.ty, a.x, a.y),
-            this.shapeSet.item.addChild(d)
+              this.shapeSet.item.addChild(d)
             var A = this.shapeSet.item
             A.children.shift(),
-            this.shapeSet.items.push(A),
-            this.shapeSet.item = null,
-            this.shapeSet.temp = null,
-            this.endSetEdit(A),
-            this.shapeSet.addHistory(),
-            this.shapeSet.trigger(),
-            this.curve = !1
+              this.shapeSet.items.push(A),
+              this.shapeSet.item = null,
+              this.shapeSet.temp = null,
+              this.endSetEdit(A),
+              this.shapeSet.addHistory(),
+              this.shapeSet.trigger(),
+              this.curve = !1
           }
         }
         this.draw = !1,
-        this.curve = !1
+          this.curve = !1
       }
     },
     zoom: function (t) {
       if (this.canvas.style.cursor = this.statusType === 'zoomin' ? 'zoom-in' : 'zoom-out',
-      t === 'down') {
+        t === 'down') {
         var e = this.zoomScale
         this.statusType === 'zoomin' ? this.zoomScale += 0.1 : this.zoomScale -= 0.1,
-        this.zoomSize(e)
+          this.zoomSize(e)
       }
     },
     hand: function (t) {
@@ -808,14 +816,14 @@ function ShapeCanvas () {
         y: 0,
         z: 0
       },
-      this.zoomScale !== 1 && (t === 'down' ? (this.drag = !0,
-      this.handLeft = this.transform3D.x,
-      this.handTop = this.transform3D.y) : t === 'move' ? this.drag && this.handMove() : this.drag = !1)
+        this.zoomScale !== 1 && (t === 'down' ? (this.drag = !0,
+          this.handLeft = this.transform3D.x,
+          this.handTop = this.transform3D.y) : t === 'move' ? this.drag && this.handMove() : this.drag = !1)
     },
     rotate: function () {
       this.angle += 90,
-      this.angle = this.angle >= 360 ? 0 : this.angle,
-      this.setCanvas()
+        this.angle = this.angle >= 360 ? 0 : this.angle,
+        this.setCanvas()
     },
     fitRect: function (t, e, o, i) {
       return {
@@ -908,7 +916,7 @@ function ShapeCanvas () {
       if (o) {
         var i = t
         this.angle !== 90 && this.angle !== 270 || (i = t === 0 || t === 1 || t === 4 || t === 5 ? t + 2 : t - 2),
-        this.canvas.style.cursor = o === 'rect' ? e[i] : e[10]
+          this.canvas.style.cursor = o === 'rect' ? e[i] : e[10]
       } else {
         this.canvas.style.cursor = e[t]
       }
@@ -987,32 +995,32 @@ function ShapeCanvas () {
       var i = this.width * this.zoomScale
       var s = this.height * this.zoomScale
       this.canvas.width = i,
-      this.canvas.height = s,
-      this.graph.width = i,
-      this.graph.height = s,
-      this.transform3D = this.transform3D || {
-        x: 0,
-        y: 0,
-        z: 0
-      }
+        this.canvas.height = s,
+        this.graph.width = i,
+        this.graph.height = s,
+        this.transform3D = this.transform3D || {
+          x: 0,
+          y: 0,
+          z: 0
+        }
       var n = Math.abs(this.transform3D.x)
       var h = Math.abs(this.transform3D.y)
       n = isNaN(n) ? 0 : n,
-      h = isNaN(h) ? 0 : h
+        h = isNaN(h) ? 0 : h
       var r = Math.round(e / t)
       var a = Math.round(o / t)
       var c = -r * (this.zoomScale - t) - n
       var l = -a * (this.zoomScale - t) - h
       this.zoomScale <= 1 ? (this.transform3D.x = 0,
-      this.transform3D.y = 0) : (c = c > 0 ? 0 : c,
-      l = l > 0 ? 0 : l,
-      this.transform3D.x = c,
-      this.transform3D.y = l)
+        this.transform3D.y = 0) : (c = c > 0 ? 0 : c,
+          l = l > 0 ? 0 : l,
+          this.transform3D.x = c,
+          this.transform3D.y = l)
       var d = this.graph.getContext('2d')
       var A = this.img
       d.drawImage(A, 0, 0, A.width, A.height, 0, 0, i, s),
-      this.dataChange(),
-      this.setCanvas()
+        this.dataChange(),
+        this.setCanvas()
     },
     handMove: function () {
       var t = this.moveClientX - this.downClientX
@@ -1042,6 +1050,7 @@ function ShapeCanvas () {
         t.title = this.tempTitle
         t.desc = this.tempDesc
         this.drawEnd && this.drawEnd(this.getData())
+        this.setInfo()
       }
       this.onSelect && this.onSelect(this.getData())
     },
@@ -1061,11 +1070,37 @@ function ShapeCanvas () {
     redo: function () {
       this.shapeSet.redo()
     },
-    setInfo () {
+    setInfo (tagData, itemData) {
+      this.tagData = tagData || this.tagData
+      this.itemData = itemData || this.itemData
       if (this.editItem) {
         let t = this.editItem.title
         let i = this.editItem.desc
-        this.info.show(t, i)
+        let eh = this.editItem
+        let x = 0
+        let y = 0
+        if (eh.type === 'rect') {
+          x = eh.x
+          y = eh.y
+        } else {
+          if (eh.children.length > 0) {
+            x = eh.children[0].x
+            y = eh.children[0].y
+          }
+        }
+        let el = this.wrap
+        if (el) {
+          x += el.offsetLeft
+          y += el.offsetTop
+        }
+        this.info.show(t, i, {
+          x: x,
+          y: y,
+          w: el.offsetWidth,
+          h: el.offsetHeight,
+          d1: this.tagData,
+          d2: this.itemData
+        })
       } else {
         this.keyFlag = true
       }
@@ -1074,12 +1109,13 @@ function ShapeCanvas () {
       this.editItem.title = t
       this.editItem.desc = i
       this.setStatus()
-      this.drawEnd && this.drawEnd(this.getData())
+      this.changeInfo && this.changeInfo(this.getData(), this.editItem.getAttr(this.scale))
+      // this.drawEnd && this.drawEnd(this.getData())
     },
-    editInfo (k, f) {
+    editInfo (k, f, tagData, itemData) {
       let shape = this.shapeSet.items[k]
       this.endSetEdit(shape, true)
-      if (f) { this.setInfo() }
+      if (f) { this.setInfo(tagData, itemData) }
       this.shapeSet.trigger()
     },
     infoMore (f) {

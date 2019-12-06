@@ -8,6 +8,7 @@
     </div>
     <tag-tool ref="tool"
       @on-data-change="saveTagData"
+      @on-tag-change="changeTagData"
       :tag-data="tagData"></tag-tool>
   </div>
 </template>
@@ -61,7 +62,19 @@ export default {
       alert(JSON.stringify(data))
     },
     saveTagData (data) {
+      // 标注发生改变，触发。
       console.log(data)
+    },
+    changeTagData (item) {
+      // 增加或者编辑标签属性，触发。
+      let isNew = this.tagData.filter(i => {
+        return i.title === item.title && i.desc === item.desc
+      })
+      isNew.length === 0 && this.tagData.push({
+        'title': item.title,
+        'desc': item.desc,
+        'selected': false
+      })
     },
     view () {
       this.$refs.tool.view()

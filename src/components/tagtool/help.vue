@@ -29,10 +29,11 @@
         <p>
           <pre>{{importStr}}</pre>
         </p>
-        <p><table>
+        <p>
+          属性：<table>
           <thead>
             <tr>
-              <th>属性</th>
+              <th>属性名/th>
               <th>说明</th>
               <th>类型</th>
               <th>默认值</th>
@@ -59,7 +60,31 @@
             </tr>
           </tbody>
         </table></p>
-        <p>事件：on-data-change</p>
+        <p>事件：
+          <table>
+          <thead>
+            <tr>
+              <th>事件名</th>
+              <th>说明</th>
+              <th>参数</th>
+              <th>值</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>on-data-change</td>
+              <td>页面标注发生改变的时候</td>
+              <td>data</td>
+              <td>标注对象数据</td>
+            </tr>
+            <tr>
+              <td>on-tag-change</td>
+              <td>编辑标注说明点击确定时候触发</td>
+              <td>data, item</td>
+              <td>标注对象数据，当前编辑对象数据</td>
+            </tr>
+          </tbody>
+        </table></p>
       </dd>
     </dl>
     <dl>
