@@ -119,7 +119,7 @@ export default {
         },
         changeInfo: (data, item) => { // 增加了保存触发 
           this.shapes = data
-          this.$emit('on-tag-change', data, item)
+          this.$emit('on-tag-change', item, data)
         },
         onSelect: (data) => {
           this.shapes = data
@@ -306,6 +306,9 @@ export default {
           color: #0dbc79;
           &:hover {
             background-color: transparent;
+          }
+          p {
+            color: #0dbc79;
           }
         }
         p {

@@ -25,24 +25,9 @@ export default {
     return {
       tagData: [
         {
-          'title': '箭头',
-          'desc': '箭头标注',
-          'selected': false
-        },
-        {
-          'title': '马',
-          'desc': '动物世界马',
-          'selected': false
-        },
-        {
-          'title': '轮船',
-          'desc': '世界轮船',
-          'selected': false
-        },
-        {
-          'title': '航空母舰',
-          'desc': '军事图片识别',
-          'selected': false
+          title: '同类标签',
+          desc: '标签的描述，补充说明',
+          selected: false
         }
       ]
     }
@@ -67,14 +52,16 @@ export default {
     },
     changeTagData (item) {
       // 增加或者编辑标签属性，触发。
-      let isNew = this.tagData.filter(i => {
-        return i.title === item.title && i.desc === item.desc
-      })
-      isNew.length === 0 && this.tagData.push({
-        'title': item.title,
-        'desc': item.desc,
-        'selected': false
-      })
+      if (item.title && item.desc) {
+        let isNew = this.tagData.filter(i => {
+          return i.title === item.title && i.desc === item.desc
+        })
+        isNew.length === 0 && this.tagData.push({
+          'title': item.title,
+          'desc': item.desc,
+          'selected': false
+        })
+      }
     },
     view () {
       this.$refs.tool.view()
