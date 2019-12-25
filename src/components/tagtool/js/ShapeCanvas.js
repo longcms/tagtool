@@ -12,6 +12,7 @@ import zoomoutImg from '../assets/img/zoomin.png'
 import lassocursor from '../assets/img/cursor-lasso.png'
 import pencursor from '../assets/img/cursor-pen.png'
 import tagImg from '../assets/img/tag.png'
+import cutImg from '../assets/img/rect2.png'
 
 import ShapeSet from './ShapeSet'
 import ShapeDraw from './ShapeDraw'
@@ -118,6 +119,12 @@ function ShapeCanvas () {
       title: '标记信息(I)',
       src: tagImg,
       shortcut: 73
+    },
+    {
+      type: 'cut',
+      title: '黑白预览(V)',
+      src: cutImg,
+      shortcut: 86
     }
     ],
     tool: 'point',
@@ -345,9 +352,20 @@ function ShapeCanvas () {
       // this.tool = tool
       // this.setToolbar()
       var e = typeof t === 'string' ? t : t.currentTarget.tool;
+
+      if (this.tool === 'cut') {
+        this.shapeSet.trigger()
+        if (e === 'cut') {
+          e = 'point'
+        }
+      }
+
       ['fColor', 'bColor', 'rotate', 'tag'].indexOf(e) === -1 ? (this.tool = e, this.keyFlag = true,
         this.setCursor(e)) : this.keyFlag = false, this.toolhandleClick(e),
         this.setToolbar(t)
+      if (this.tool === 'cut') {
+        this.cut()
+      }
     },
     toolbarDblclick: function (t) {
       t.currentTarget.tool === 'zoom' && (this.zoomScale = 1,
@@ -825,6 +843,9 @@ function ShapeCanvas () {
         this.angle = this.angle >= 360 ? 0 : this.angle,
         this.setCanvas()
     },
+    cut: function (t) {
+      this.coverView()
+    },
     fitRect: function (t, e, o, i) {
       return {
         x: Math.min(t, o),
@@ -871,13 +892,23 @@ function ShapeCanvas () {
       ShapeDraw.zoomScale = this.zoomScale
       ShapeDraw.clear(this.context)
       t.context.fillStyle = '#FFFFFF' // t.bgColor
-      t.context.fillRect(0, 0, t.context.canvas.width, t.context.canvas.height)
+      // 绘制背景
+      t.context.beginPath()
+      t.context.rect(0, 0, t.context.canvas.width, t.context.canvas.height)
+      e.forEach(function (e) {
+        ShapeDraw.draw(t.context, e, true)
+      })
+      t.context.fillStyle = '#FFFFFF' // t.color
+      t.context.fill('evenodd')
+
+      // 绘制前景
       t.context.beginPath()
       e.forEach(function (e) {
         ShapeDraw.draw(t.context, e, true)
       })
       t.context.fillStyle = '#000000' // t.color
       t.context.fill('evenodd')
+
       this.canvas.style.display = ''
     },
     setCursor: function (t) {

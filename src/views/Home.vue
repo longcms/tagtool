@@ -4,7 +4,6 @@
       <button @click="setImage">加载图片</button>
       <button @click="setTagData">加载数据</button>
       <button @click="getTagData">获取标注数据</button>
-      <button @click="view">黑白图片预览</button>
     </div>
     <tag-tool ref="tool"
       @on-data-change="saveTagData"
