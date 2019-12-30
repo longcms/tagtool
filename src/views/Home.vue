@@ -4,6 +4,7 @@
       <button @click="setImage">加载图片</button>
       <button @click="setTagData">加载数据</button>
       <button @click="getTagData">获取标注数据</button>
+      <button @click="loadTagData">加载同类标签</button>
     </div>
     <tag-tool ref="tool"
       @on-data-change="saveTagData"
@@ -22,13 +23,7 @@ export default {
   },
   data () {
     return {
-      tagData: [
-        {
-          title: '同类标签',
-          desc: '标签的描述，补充说明',
-          selected: false
-        }
-      ]
+      tagData: []
     }
   },
   mounted () {
@@ -64,6 +59,15 @@ export default {
     },
     view () {
       this.$refs.tool.view()
+    },
+    loadTagData () {
+      this.tagData = [
+        {
+          title: '同类标签',
+          desc: '标签的描述，补充说明',
+          selected: false
+        }
+      ]
     }
   }
 }

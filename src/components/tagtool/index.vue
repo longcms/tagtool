@@ -177,6 +177,13 @@ export default {
     view () {
       this.sc && this.sc.coverView()
     }
+  },
+  watch:{
+    tagData(n) {
+      if (this.sc) {
+        this.sc.tagData = n
+      }
+    }
   }
 }
 </script>
