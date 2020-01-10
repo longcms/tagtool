@@ -39,6 +39,7 @@ const ShapeEdit = {
           bindIndex: e,
           edit: !0
         });
+        console.log(t.x,t.y,o,s)
         if (r.rect(o, s, n, h),
           i.push(r),
           "curve" === t.type) {
@@ -121,8 +122,8 @@ const ShapeEdit = {
   },
   polygonAlter: function (t) {
     var e = t.item,
-      o = t.moveX / t.zoomScale,
-      i = t.moveY / t.zoomScale,
+      o = t.moveX / t.zoomScale + t.x / t.zoomScale,
+      i = t.moveY / t.zoomScale + t.y / t.zoomScale,
       s = t.index,
       n = e.children[s],
       h = s - 1 < 0 ? e.children.length - 1 : s - 1,
@@ -137,8 +138,8 @@ const ShapeEdit = {
   penAlter: function (t) {
     var e = t.edits,
       o = t.item,
-      i = t.moveX / t.zoomScale,
-      s = t.moveY / t.zoomScale,
+      i = t.moveX / t.zoomScale + t.x / t.zoomScale,
+      s = t.moveY / t.zoomScale + t.y / t.zoomScale,
       n = e[t.index],
       h = n.bindIndex,
       r = o.children[h],

@@ -3,6 +3,8 @@ const ShapeDraw = {
   pixelComp: 0.5,
   zoomScale: 1,
   rule: 'evenodd',
+  offsetX: 0,
+  offsetY: 0,
   draw: function (t, e, o) {
     e && this[e.type] && this[e.type](t, e, o)
   },
@@ -19,7 +21,7 @@ const ShapeDraw = {
       t.lineWidth % 2 === 1 && (i = this.pixelComp)
       var s = Math.round(e.x * this.zoomScale) - i
       var n = Math.round(e.y * this.zoomScale) - i
-      t.arc(s, n, o, 0, 2 * Math.PI)
+      t.arc(s-this.offsetX, n-this.offsetY, o, 0, 2 * Math.PI)
       var h = e.over ? e.overColor : e.color
       h = e.selected ? e.selectedColor : h
       if (e.fill) {
@@ -39,13 +41,13 @@ const ShapeDraw = {
       var o = 0
       t.lineWidth % 2 === 1 && (o = this.pixelComp)
       e.handle && e.over && (t.lineWidth = this.lineWidth + 2)
-      var i = Math.round(e.x * this.zoomScale) - o
-      var s = Math.round(e.y * this.zoomScale) - o
+      var i = Math.round(Math.round(e.x) * this.zoomScale-this.offsetX) - o
+      var s = Math.round(Math.round(e.y) * this.zoomScale-this.offsetY) - o
       var n = Math.round(e.width * this.zoomScale)
       var h = Math.round(e.height * this.zoomScale)
       if (e.edit) {
-        i = Math.round(e.x * this.zoomScale + e.width * (this.zoomScale - 1) / 2) - o
-        s = Math.round(e.y * this.zoomScale + e.height * (this.zoomScale - 1) / 2) - o
+        i = Math.round(Math.round(e.x) * this.zoomScale + e.width * (this.zoomScale - 1) / 2-this.offsetX) - o
+        s = Math.round(Math.round(e.y) * this.zoomScale + e.height * (this.zoomScale - 1) / 2-this.offsetY) - o
         n = Math.round(e.width)
         h = Math.round(e.height)
       }
@@ -67,10 +69,10 @@ const ShapeDraw = {
       t.lineWidth = this.lineWidth
       var i = 0
       t.lineWidth % 2 === 1 && (i = this.pixelComp)
-      var s = Math.round(e.x * this.zoomScale) - i
-      var n = Math.round(e.y * this.zoomScale) - i
-      var h = Math.round(e.tx * this.zoomScale) - i
-      var r = Math.round(e.ty * this.zoomScale) - i
+      var s = Math.round(Math.round(e.x) * this.zoomScale - this.offsetX) - i 
+      var n = Math.round(Math.round(e.y) * this.zoomScale - this.offsetY) - i
+      var h = Math.round(Math.round(e.tx) * this.zoomScale - this.offsetX) - i
+      var r = Math.round(Math.round(e.ty) * this.zoomScale - this.offsetY) - i
       if (o) {
 
       } else {
@@ -86,12 +88,12 @@ const ShapeDraw = {
       t.lineWidth = this.lineWidth
       var i = 0
       t.lineWidth % 2 === 1 && (i = this.pixelComp)
-      var s = Math.round(e.x * this.zoomScale) - i
-      var n = Math.round(e.y * this.zoomScale) - i
-      var h = Math.round(e.cx * this.zoomScale) - i
-      var r = Math.round(e.cy * this.zoomScale) - i
-      var a = Math.round(e.tx * this.zoomScale) - i
-      var c = Math.round(e.ty * this.zoomScale) - i
+      var s = Math.round(Math.round(e.x) * this.zoomScale - this.offsetX) - i
+      var n = Math.round(Math.round(e.y) * this.zoomScale - this.offsetY) - i
+      var h = Math.round(Math.round(e.cx) * this.zoomScale - this.offsetX) - i
+      var r = Math.round(Math.round(e.cy) * this.zoomScale - this.offsetY) - i
+      var a = Math.round(Math.round(e.tx) * this.zoomScale - this.offsetX) - i
+      var c = Math.round(Math.round(e.ty) * this.zoomScale - this.offsetY) - i
       if (o) {
 
       } else {
@@ -116,8 +118,8 @@ const ShapeDraw = {
       t.lineWidth % 2 === 1 && (s = this.pixelComp)
       e.children.forEach(function (e, i) {
         if (i === 0) {
-          var n = Math.round(e.x * o.zoomScale) - s
-          var h = Math.round(e.y * o.zoomScale) - s
+          var n = Math.round(e.x * o.zoomScale) - s - o.offsetX
+          var h = Math.round(e.y * o.zoomScale) - s - o.offsetY
           t.moveTo(n, h)
         }
         o.draw(t, e, !0)

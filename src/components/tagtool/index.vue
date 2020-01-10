@@ -164,8 +164,10 @@ export default {
       let item = this.tagData[key]
       if (item.selected) {
         this.sc.setTempinfo(item.title, item.desc)
+        this.sc.autoInfo = false
       } else {
         this.sc.setTempinfo('', '')
+        this.sc.autoInfo = true
       }
     },
     addTagInfo (i) {

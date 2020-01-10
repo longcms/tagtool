@@ -9,6 +9,7 @@
     <tag-tool ref="tool"
       @on-data-change="saveTagData"
       @on-tag-change="changeTagData"
+      :height="height"
       :tag-data="tagData"></tag-tool>
   </div>
 </template>
@@ -23,11 +24,14 @@ export default {
   },
   data () {
     return {
-      tagData: []
+      tagData: [],
+      height: 600
     }
   },
   mounted () {
-    this.$refs.tool.setImage('http://sc.68design.net/qita7/HappyChildhood/images/RTYD_1003.jpg')
+    // this.$refs.tool.setImage('http://sc.68design.net/qita7/HappyChildhood/images/RTYD_1003.jpg')
+    this.$refs.tool.setImage('http://attach.bbs.miui.com/forum/201301/25/202316i8hkklbu4rdvvhri.jpg')
+    // this.test()
   },
   methods: {
     setImage () {
@@ -68,6 +72,8 @@ export default {
           selected: false
         }
       ]
+      this.height = 900
+      this.setTagData()
     }
   }
 }

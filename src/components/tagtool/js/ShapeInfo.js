@@ -138,9 +138,9 @@ const ShapeInfo = (option) => {
       this.titleInput.value = t
       this.descInput.value = i
       this.op = op
-      setTimeout(() => {
-        this.titleInput.focus()
-      }, 100)
+      // setTimeout(() => {
+      //   this.titleInput.focus()
+      // }, 100)
     },
     hide () {
       this.el.style.display = 'none'
