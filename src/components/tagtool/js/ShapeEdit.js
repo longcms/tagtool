@@ -39,7 +39,6 @@ const ShapeEdit = {
           bindIndex: e,
           edit: !0
         });
-        console.log(t.x,t.y,o,s)
         if (r.rect(o, s, n, h),
           i.push(r),
           "curve" === t.type) {

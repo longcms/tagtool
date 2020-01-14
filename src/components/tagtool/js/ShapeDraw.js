@@ -5,6 +5,7 @@ const ShapeDraw = {
   rule: 'evenodd',
   offsetX: 0,
   offsetY: 0,
+  angle: 0,
   draw: function (t, e, o) {
     e && this[e.type] && this[e.type](t, e, o)
   },

@@ -718,13 +718,14 @@ function ShapeCanvas () {
       }
     },
     point: function (t, e) {
+      var _p = this.computePoint()
       var o = this
       if (!(t === 'click' || e.button > 1)) {
         if (t === 'down') {
           var i = this.shapeSet.edits
           this.drawEdit = null
           Array.isArray(i) && i.forEach(function (t, e) {
-            t.contain(o.moveX + o.x, o.moveY + o.y, o.zoomScale) && (o.drawEdit = e)
+            t.contain(o.moveX + o.x, o.moveY + o.y, o.zoomScale, !0) && (o.drawEdit = e)
           })
         } else if (t === 'move') {
           if (this.drawEdit | this.drawEdit === 0) {
@@ -741,8 +742,8 @@ function ShapeCanvas () {
             this.shapeSet.items = s.reverse()
             this.setStyle(10)
             Array.isArray(n) && n.forEach(function (t, e) {
-              t.contain(o.moveX + o.x, o.moveY + o.y, o.zoomScale) ? (t.over = !0,
-                o.setStyle(e)) : t.over = !1
+              t.contain(o.moveX + o.x, o.moveY + o.y, o.zoomScale, !0) ? (t.over = !0,
+                o.setStyle(e),console.log(t,_p)) : t.over = !1
             })
             this.shapeSet.trigger()
           }
@@ -865,25 +866,42 @@ function ShapeCanvas () {
           }
         } else if(t==='up') {
           this.drag = !1
+        } else {
+          this.drag = !1
         }
       }
     },
     rotate: function () {
       this.angle += 90
       this.angle = this.angle >= 360 ? 0 : this.angle
+      var data = this.getData()
+      var itemData = this.shapeSet.item && this.shapeSet.item.getAttr(this.scale)
+      var tempData = this.shapeSet.temp && this.shapeSet.temp.getAttr(this.scale)
+      var editData = this.shapeSet.edits && this.shapeSet.edits.map(item => {
+        return item.getAttr(this.scale)
+      })
+      var editIndex 
+      this.shapeSet.items.forEach((item,key) => {
+        if(item.selected){
+          editIndex = key
+        }
+      })
+      this.setCanvas()
+
+      this.shapeSet.items = []
+      data.items.forEach(item => {
+        let sp = new ShapePath()
+        sp.setAttr(item, this.scale)
+        this.shapeSet.items.push(sp)
+      })
       
-      // this.setCanvas()
-      this.rotateFit()
-      var e = this
-      var o = this.rotateImage()
-      var t =  ShapeDraw.fitSize(o.width, o.height, e.wrap.offsetWidth, e.wrap.offsetHeight)
-      e.width = t.w
-      e.height = t.h
-      // e.scale = t.w / o.width
-      e.computeSize()
-      // e.graph.getContext('2d').drawImage(o, 0, 0, o.width, o.height, 0, 0, t.w, t.h)
-      
-      e.handMove()
+      itemData && (this.shapeSet.item = (new ShapePath()).setAttr(itemData, this.scale))
+      tempData && (this.shapeSet.temp = (new ShapePath()).setAttr(tempData, this.scale))
+      if(this.shapeSet.items[editIndex]) {
+        this.endSetEdit(this.shapeSet.items[editIndex],1)
+      }
+     
+      this.handMove()
     },
     rotateImage: function (can) {
       var e = this
@@ -924,32 +942,17 @@ function ShapeCanvas () {
     },
     rotateFit: function () {
       var x=this.x, y=this.y, w = this.graph.width, h = this.graph.height
-      console.log('j',this.angle / 90, x, y)
-      // switch(this.angle / 90){
-      //   case 0 : 
-      //     x = x
-      //     y = y
-      //     break
-      //   case 1 : 
-      //     x = x - w
-      //     break
-      //   case 2 : 
-      //     x = w - x
-      //     y = h - y
-      //     break
-      //   case 3 : 
-      //     x = y
-      //     y = h - y
-      //     break
-      // }
-      var t = y
-      y = x
-      x = this.height * (this.zoomScale-1) - t 
-      this.x = x
-      this.y = y
+      
+      var t = y 
+      y = x 
+      x = this.height * this.zoomScale - t - h
+      
+      this.x = x / this.zoomScale
+      this.y = y / this.zoomScale
+      this.zoomScale = 1
+      this.multiple = 0
       this.usedX = this.moveX
       this.usedY = this.moveY
-      console.log('j', x, y)
     },
     cut: function (t) {
       this.coverView()
@@ -984,6 +987,7 @@ function ShapeCanvas () {
       ShapeDraw.zoomScale = this.zoomScale
       ShapeDraw.offsetX = this.x
       ShapeDraw.offsetY = this.y
+      ShapeDraw.angle = this.angle
       ShapeDraw.clear(this.context)
       e.forEach(function (e) {
         ShapeDraw.draw(t.context, e)
@@ -1002,6 +1006,7 @@ function ShapeCanvas () {
       ShapeDraw.zoomScale = this.zoomScale
       ShapeDraw.offsetX = this.x
       ShapeDraw.offsetY = this.y
+      ShapeDraw.angle = this.angle
       ShapeDraw.clear(this.context)
       t.context.fillStyle = '#FFFFFF' // t.bgColor
       // 绘制背景
@@ -1098,10 +1103,14 @@ function ShapeCanvas () {
       }
     },
     computeSize: function () {
-      this.canvas.width = this.width
-      this.canvas.height = this.height
-      this.graph.width = this.width
-      this.graph.height = this.height
+      // this.canvas.width = this.width
+      // this.canvas.height = this.height
+      // this.graph.width = this.width
+      // this.graph.height = this.height
+      this.canvas.width = this.wrap.offsetWidth
+      this.canvas.height = this.wrap.offsetHeight
+      this.graph.width = this.wrap.offsetWidth
+      this.graph.height = this.wrap.offsetHeight
     },
     computePoint: function () {
       var x,y,tx,ty,ux,uy
@@ -1142,8 +1151,11 @@ function ShapeCanvas () {
 
         fun && fun()
         e.zoomScale = 1
-
+        e.multiple = 0
+        e.angle = 0
+        e.setCanvas()
         e.zoomSize(1)
+        
       }
       o.onerror = function () {
         fail && fail()
@@ -1158,38 +1170,37 @@ function ShapeCanvas () {
       var s = this.height * this.zoomScale
       
       var d = this.graph.getContext('2d')
-      var A = this.rotateImage()
+      var A = this.img
       this.graph.style.display = 'none'
 
       var _x,_y,_w,_h,_ox,_oy
-      var vW = this.wrap.offsetWidth
-      var vH = this.wrap.offsetHeight
+      var vW = this.angle / 90 % 2 === 1 ? this.wrap.offsetHeight : this.wrap.offsetWidth
+      var vH = this.angle / 90 % 2 === 1 ? this.wrap.offsetWidth : this.wrap.offsetHeight
       _ox = this.x
       _oy = this.y
       _x = (e + _ox)/t * this.zoomScale - e 
       _y = (o + _oy)/t * this.zoomScale - o
+      
       _x = _x < 0 ? 0 : _x
       _y = _y < 0 ? 0 : _y
       _w = i -_x - vW > 0 ? vW : i-_x
       _h = s -_y - vH > 0 ? vH : s-_y
       
-      _w = _w < this.width ? (_x=0,this.width) : _w
-      _h = _h < this.height ? (_y=0,this.height)  : _h
+      _w = _w < this.width ? (_x = i-this.width, this.width) : _w
+      _h = _h < this.height ? (_y = s-this.height, this.height)  : _h
 
       var _mx = A.width * _x / i
       var _my = A.height * _y / s
       var _mw = A.width * _w / i
       var _mh = A.height * _h / s
-      this.graph.width = _w
-      this.graph.height = _h
-      this.canvas.width = _w
-      this.canvas.height = _h
+      // this.graph.width = _w
+      // this.graph.height = _h
+      // this.canvas.width = _w
+      // this.canvas.height = _h
       this.x = _x
       this.y = _y
-      console.log('zoom', _x, _y)
+      d.clearRect(0, 0, this.graph.width, this.graph.height)
       d.drawImage(A, _mx, _my, _mw, _mh, 0, 0, _w, _h)
-
-      // d.drawImage(A, 0, 0, A.width, A.height, 0, 0, i, s)
       this.graph.style.display = ''
       this.dataChange()
       // this.setCanvas()
@@ -1202,12 +1213,12 @@ function ShapeCanvas () {
       var s = this.height * this.zoomScale
       
       var d = this.graph.getContext('2d')
-      var A = this.rotateImage()
+      var A = this.img
       this.graph.style.display = 'none'
 
       var _x,_y,_w,_h,_ox,_oy
-      var vW = this.wrap.offsetWidth
-      var vH = this.wrap.offsetHeight
+      var vW = this.angle / 90 % 2 === 1 ? this.wrap.offsetHeight : this.wrap.offsetWidth
+      var vH = this.angle / 90 % 2 === 1 ? this.wrap.offsetWidth : this.wrap.offsetHeight
       _ox = this.x
       _oy = this.y
       _x = _ox - t
@@ -1216,21 +1227,20 @@ function ShapeCanvas () {
       _y = _y < 0 ? 0 : _y
       _w = i -_x - vW > 0 ? vW : i-_x
       _h = s -_y - vH > 0 ? vH : s-_y
-      
-      _w = _w < this.width ? (_x=0,this.width) : _w
-      _h = _h < this.height ? (_y=0,this.height)  : _h
+      _w = _w < this.width ? (_x = i-this.width, this.width) : _w
+      _h = _h < this.height ? (_y = s-this.height, this.height)  : _h
 
       var _mx = A.width * _x / i
       var _my = A.height * _y / s
       var _mw = A.width * _w / i
       var _mh = A.height * _h / s
-      this.graph.width = _w
-      this.graph.height = _h
-      this.canvas.width = _w
-      this.canvas.height = _h
+      // this.graph.width = _w
+      // this.graph.height = _h
+      // this.canvas.width = _w
+      // this.canvas.height = _h
       this.x = _x
       this.y = _y
-      console.log('move', this.x, _y,t,e)
+      d.clearRect(0, 0, this.graph.width, this.graph.height)
       d.drawImage(A, _mx, _my, _mw, _mh, 0, 0, _w, _h)
 
       // d.drawImage(A, 0, 0, A.width, A.height, 0, 0, i, s)
@@ -1260,18 +1270,31 @@ function ShapeCanvas () {
     },
     setCanvas: function () {
       var t = ''
-      this.transform3D && (t += 'translate3d(' + this.transform3D.x + 'px,' + this.transform3D.y + 'px,0)')
+      
+      // var e = 1
+      // this.width > this.height && this.angle / 90 % 2 === 1 && (e = this.wrap.offsetHeight / this.wrap.offsetWidth)
+      // t += ' scale(' + e + ')'
+      var angle = this.angle / 90 % 2  === 1, wW = this.wrap.offsetWidth, wH = this.wrap.offsetHeight
+      this.canvas.width = angle ? wH : wW
+      this.canvas.height = angle ? wW : wH
+      this.graph.width = angle ? wH : wW
+      this.graph.height = angle ? wW : wH
+      var top = (wH-wW) / 2
+      var left = -(wH-wW) / 2
+      if(angle){
+        t += ' translate3d('+left+'px, '+top+'px, 0)'
+      }
       t += ' rotateZ(' + this.angle + 'deg)'
-      var e = 1
-      this.width > this.height && this.angle / 90 % 2 === 1 && (e = this.height / this.width)
-      t += ' scale(' + e + ')'
+
       this.canvas.style.transform = t
       this.graph.style.transform = t
-      // var canvas2d = this.canvas.getContext("2d")
-      // var graph2d = this.graph.getContext("2d")
-      // var angle = this.angle * Math.PI/180
-      // canvas2d.rotate(angle)
-      // graph2d.rotate(angle)
+
+      var o = this.img
+      var t = ShapeDraw.fitSize(o.width, o.height, this.canvas.width, this.canvas.height)
+      this.width = t.w
+      this.height = t.h
+      this.scale = t.w / o.width
+      // this.wrap.style.transform = t
     },
     revoke: function () {
       this.shapeSet.revoke()

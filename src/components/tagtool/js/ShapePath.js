@@ -128,7 +128,7 @@ const ShapePath = function (e) {
       var h = Math.max.apply(null, e)
       this.setBounds(i, s, n, h)
     },
-    contain: function (t, e, o) {
+    contain: function (t, e, o, ed) {
       o = o || 1
       var i = !1
       if (this.type === 'arc') {
@@ -138,6 +138,12 @@ const ShapePath = function (e) {
         var n = this.bounds.minY * o
         var h = this.bounds.maxX * o
         var r = this.bounds.maxY * o
+        if (ed) {
+          s = (s+h)/2 -2
+          n = (n+r)/2 -2
+          h = s + 4
+          r = n + 4
+        }
         t >= s && t <= h && e >= n && e <= r && (i = !0,
         this.type !== 'polygon' && this.type !== 'lasso' && this.type !== 'repair' && this.type !== 'pen' || (i = this.inPolygon(t, e, o)))
       }

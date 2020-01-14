@@ -130,10 +130,10 @@ const ShapeInfo = (option) => {
         y += 5
       }
 
-      this.el.style.left = x + 'px'
-      this.el.style.top = y + 'px'
-      this.arrow.style.left = ax + 'px'
-      this.arrow.style.top = ay + 'px'
+      // this.el.style.left = x + 'px'
+      // this.el.style.top = y + 'px'
+      // this.arrow.style.left = ax + 'px'
+      // this.arrow.style.top = ay + 'px'
 
       this.titleInput.value = t
       this.descInput.value = i
