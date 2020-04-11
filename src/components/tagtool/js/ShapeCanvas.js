@@ -1200,10 +1200,11 @@ function ShapeCanvas () {
       this.x = _x
       this.y = _y
       d.clearRect(0, 0, this.graph.width, this.graph.height)
-      d.mozImageSmoothingEnabled = false
-      d.webkitImageSmoothingEnabled = false
-      d.msImageSmoothingEnabled = false
-      d.imageSmoothingEnabled = false
+      if(this.zoomScale ===1){
+        d.imageSmoothingEnabled = true
+      } else {
+        d.imageSmoothingEnabled = false
+      }
       d.drawImage(A, _mx, _my, _mw, _mh, 0, 0, _w, _h)
       this.graph.style.display = ''
       this.dataChange()
