@@ -29,7 +29,7 @@ export default {
     }
   },
   mounted () {
-    this.$refs.tool.setImage('http://bi.teweit.com:65525/api/image/2019-12-21/test1221%E6%A0%87%E6%B3%A8/3490/test/109zhong%20-%20%E5%89%AF%E6%9C%AC%20(9)/109zhong_1652.jpg')
+    this.$refs.tool.setImage('http://sc.68design.net/qita7/HappyChildhood/images/RTYD_1003.jpg')
     // this.$refs.tool.setImage('http://attach.bbs.miui.com/forum/201301/25/202316i8hkklbu4rdvvhri.jpg')
     // this.test()
   },
