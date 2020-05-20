@@ -22,7 +22,8 @@ const ShapePath = function (e) {
     selected: e.selected || !1,
     selectedColor: '#00A8FF',
     over: !1,
-    overColor: '#00A8FF',
+    overColor: e.overColor || '#00A8FF',
+    shadow: e.shadow || !1,
     handle: e.handle || !1,
     parent: e.parent || null,
     fill: e.fill || !1,
@@ -66,9 +67,9 @@ const ShapePath = function (e) {
       this.setBounds()
     },
     line: function (t, e, o, i) {
-      this.x = Math.round(t),
-      this.y = Math.round(e),
-      this.tx = Math.round(o),
+      this.x = Math.round(t)
+      this.y = Math.round(e)
+      this.tx = Math.round(o)
       this.ty = Math.round(i)
       // this.parent && this.parent.setBounds()
     },

@@ -45,7 +45,7 @@
       <div ref="toolCanvas"></div>
     </div>
     <div class="tool-mask"
-      v-show="loading">
+      v-show="loading" @scroll.stop.prevent="scroll">
       <loading :message="message"></loading>
     </div>
 

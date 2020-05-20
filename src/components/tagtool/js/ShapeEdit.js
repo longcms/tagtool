@@ -7,37 +7,58 @@ const ShapeEdit = {
       this[t.type] && this[t.type](t, e)
   },
   rect: function (t, e) {
-    for (var o = 0, i = [], s = t.x, n = t.y, h = t.width, r = t.height; o < 9; o++)
+    var o = 0, i = [], s = t.x, n = t.y, h = t.width, r = t.height
+    for (; o < 9; o++)
       if (4 !== o) {
-        var a, c, l, d;
-        l = (a = s + o % 3 * h / 2 - 2) + 4,
-          d = (c = n + Math.floor(o / 3) * r / 2 - 2) + 4;
+        var a, c, l, d, w=4;
+        l = (a = s + o % 3 * h / 2 - w/2) + w,
+          d = (c = n + Math.floor(o / 3) * r / 2 - w/2) + w;
         var A = new ShapePath({
           type: "rect",
           fill: !0,
           handle: !0,
           selected: !0,
-          edit: !0
+          edit: !0,
+          shadow: !0
         });
-        A.rect(a, c, l, d),
+        A.rect(a, c, l, d)
           i.push(A)
       }
+    for (var j=0; j<4; j++){
+      var x,y,tx,ty
+      x= s + j % 2 * h/2
+      y= n + Math.floor(j / 2) * r/2
+      tx = x + h / 2
+      ty = y + r / 2
+      var A = new ShapePath({
+        type: "rect",
+        fill: !0,
+        handle: !0,
+        selected: !1,
+        edit: !0,
+        color: 'rgba(0,0,0,0)',
+        overColor: 'rgba(0,0,0,0)',
+      });
+      A.rect(x, y, tx, ty)
+      i.push(A)
+    }
     return i
   },
   polygon: function (t, e) {
     var o = t.children,
       i = [];
     return o.forEach(function (t, e) {
-        var o, s, n, h;
-        n = (o = t.x - 2) + 4,
-          h = (s = t.y - 2) + 4;
+        var o, s, n, h, w=4;
+        n = (o = t.x - w/2) + w,
+          h = (s = t.y - w/2) + w;
         var r = new ShapePath({
           type: "rect",
           fill: !0,
           handle: !0,
           selected: !0,
           bindIndex: e,
-          edit: !0
+          edit: !0,
+          shadow: !0
         });
         if (r.rect(o, s, n, h),
           i.push(r),
@@ -86,10 +107,19 @@ const ShapeEdit = {
         a += s,
           c += n;
         break;
+      case 11:
+        a += s,
+          c += n;
+        break;
       case 6:
         c += n;
         break;
       case 5:
+        h += s,
+          a -= s,
+          c += n;
+        break;
+      case 10:
         h += s,
           a -= s,
           c += n;
@@ -106,11 +136,22 @@ const ShapeEdit = {
           a += s,
           c -= n;
         break;
+      case 9:
+        r += n,
+          a += s,
+          c -= n;
+        break;
       case 1:
         r += n,
           c -= n;
         break;
       case 0:
+        h += s,
+          r += n,
+          a -= s,
+          c -= n
+        break;
+      case 8:
         h += s,
           r += n,
           a -= s,

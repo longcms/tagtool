@@ -55,6 +55,17 @@ const ShapeDraw = {
       t.rect(i, s, n, h)
       var r = e.over ? e.overColor : e.color
       r = e.selected ? e.selectedColor : r
+      if(e.shadow){
+        t.shadowOffsetX = 0
+        t.shadowOffsetY = 0
+        t.shadowBlur = 3
+        t.shadowColor = 'rgba(0, 0, 0, 0.5)'
+      } else {
+        t.shadowOffsetX = 0
+        t.shadowOffsetY = 0
+        t.shadowBlur = 0
+        t.shadowColor = 'rgba(0, 0, 0, 0.0)'
+      }
       if (e.fill) {
         t.fillStyle = r
         t.fill()

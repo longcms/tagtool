@@ -154,10 +154,12 @@ function ShapeCanvas () {
     tagData: [],
     itemData: [],
     autoInfo: true,
-    multipleArr: [1, 1.5, 2, 3, 4, 8, 16, 32, 64, 128, 256],
+    multipleArr: [1, 1.5, 2, 3, 4, 8, 16, 32, 64, 128],
     multiple: 0,
     x:0,
     y:0,
+    __x:0,
+    __y:0,
     init (option) {
       option = option || {}
       this.el = option.el || document.body
@@ -244,9 +246,13 @@ function ShapeCanvas () {
         this.click(e)
       }, false)
       this.canvas.addEventListener('mousewheel', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
         this.mousewheel(e)
       }, false)
       this.canvas.addEventListener('DOMMouseScroll', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
         this.mousewheel(e)
       }, false)
       this.canvas.addEventListener('contextmenu', (e) => {
@@ -535,8 +541,8 @@ function ShapeCanvas () {
         if (i.length > 2 && (e = i[0]),
           o) {
           if (e && Math.abs(e.x - _p.x) < this.accuracy/this.zoomScale && Math.abs(e.y - _p.y) < this.accuracy/this.zoomScale) {
-            s.line(o.tx, o.ty, e.x, e.y),
-              this.shapeSet.item.addChild(s)
+            s.line(o.tx, o.ty, e.x, e.y)
+            this.shapeSet.item.addChild(s)
             var n = this.shapeSet.item
             n.children.shift(),
               this.shapeSet.items.push(n),
@@ -546,8 +552,8 @@ function ShapeCanvas () {
               this.shapeSet.addHistory(),
               this.shapeSet.trigger()
           } else {
-            s.line(o.tx, o.ty, _p.x, _p.y),
-              this.shapeSet.item.addChild(s),
+            s.line(o.tx, o.ty, _p.x, _p.y)
+              this.shapeSet.item.addChild(s)
               this.shapeSet.addHistory()
           }
         } else {
@@ -724,9 +730,17 @@ function ShapeCanvas () {
         if (t === 'down') {
           var i = this.shapeSet.edits
           this.drawEdit = null
-          Array.isArray(i) && i.forEach(function (t, e) {
-            t.contain(o.moveX + o.x, o.moveY + o.y, o.zoomScale, !0) && (o.drawEdit = e)
-          })
+          if(Array.isArray(i)){
+            for(var j=0;j<i.length;j++){
+              if(i[j].contain(o.moveX + o.x, o.moveY + o.y, o.zoomScale)){
+                o.drawEdit = j
+                break
+              }
+            }
+          }
+          // Array.isArray(i) && i.forEach(function (t, e) {
+          //   t.contain(o.moveX + o.x, o.moveY + o.y, o.zoomScale) && (o.drawEdit = e)
+          // })
         } else if (t === 'move') {
           if (this.drawEdit | this.drawEdit === 0) {
             this.alter()
@@ -742,8 +756,8 @@ function ShapeCanvas () {
             this.shapeSet.items = s.reverse()
             this.setStyle(10)
             Array.isArray(n) && n.forEach(function (t, e) {
-              t.contain(o.moveX + o.x, o.moveY + o.y, o.zoomScale, !0) ? (t.over = !0,
-                o.setStyle(e),console.log(t,_p)) : t.over = !1
+              t.contain(o.moveX + o.x, o.moveY + o.y, o.zoomScale) ? (t.over = !0,
+                o.setStyle(e<8?e:10)) : t.over = !1
             })
             this.shapeSet.trigger()
           }
@@ -857,7 +871,7 @@ function ShapeCanvas () {
       }
     },
     hand: function (t) {
-      if(this.zoomScale !== 1) {
+      //if(this.zoomScale !== 1) {
         if(t === 'down'){
           this.drag = !0
         } else if(t==='move') {
@@ -869,7 +883,7 @@ function ShapeCanvas () {
         } else {
           this.drag = !1
         }
-      }
+      //}
     },
     rotate: function () {
       this.angle += 90
@@ -1139,7 +1153,11 @@ function ShapeCanvas () {
         e.height = t.h
         e.scale = t.w / o.width
         e.computeSize()
-        e.graph.getContext('2d').drawImage(o, 0, 0, o.width, o.height, 0, 0, t.w, t.h)
+        // e.__x = (e.canvas.width-t.w)/2
+        // e.__y = (e.canvas.height-t.h)/2
+        e.x = 0
+        e.y = 0
+        e.graph.getContext('2d').drawImage(o, 0, 0, o.width, o.height, e.__x, e.__y, t.w, t.h)
         e.imgSrc = src
 
         e.editItem = null
@@ -1181,13 +1199,13 @@ function ShapeCanvas () {
       _x = (e + _ox)/t * this.zoomScale - e 
       _y = (o + _oy)/t * this.zoomScale - o
       
-      _x = _x < 0 ? 0 : _x
-      _y = _y < 0 ? 0 : _y
+      // _x = _x < 0 ? 0 : _x
+      // _y = _y < 0 ? 0 : _y
       _w = i -_x - vW > 0 ? vW : i-_x
       _h = s -_y - vH > 0 ? vH : s-_y
       
-      _w = _w < this.width ? (_x = i-this.width, this.width) : _w
-      _h = _h < this.height ? (_y = s-this.height, this.height)  : _h
+      // _w = _w < this.width ? (_x = i-this.width, this.width) : _w
+      // _h = _h < this.height ? (_y = s-this.height, this.height)  : _h
 
       var _mx = A.width * _x / i
       var _my = A.height * _y / s
@@ -1205,7 +1223,7 @@ function ShapeCanvas () {
       } else {
         d.imageSmoothingEnabled = false
       }
-      d.drawImage(A, _mx, _my, _mw, _mh, 0, 0, _w, _h)
+      d.drawImage(A, _mx, _my, _mw, _mh, this.__x, this.__y, _w, _h)
       this.graph.style.display = ''
       this.dataChange()
       // this.setCanvas()
@@ -1228,12 +1246,12 @@ function ShapeCanvas () {
       _oy = this.y
       _x = _ox - t
       _y = _oy - e
-      _x = _x < 0 ? 0 : _x
-      _y = _y < 0 ? 0 : _y
+      // _x = _x < 0 ? 0 : _x
+      // _y = _y < 0 ? 0 : _y
       _w = i -_x - vW > 0 ? vW : i-_x
       _h = s -_y - vH > 0 ? vH : s-_y
-      _w = _w < this.width ? (_x = i-this.width, this.width) : _w
-      _h = _h < this.height ? (_y = s-this.height, this.height)  : _h
+      // _w = _w < this.width ? (_x = i-this.width, this.width) : _w
+      // _h = _h < this.height ? (_y = s-this.height, this.height)  : _h
 
       var _mx = A.width * _x / i
       var _my = A.height * _y / s
@@ -1246,7 +1264,7 @@ function ShapeCanvas () {
       this.x = _x
       this.y = _y
       d.clearRect(0, 0, this.graph.width, this.graph.height)
-      d.drawImage(A, _mx, _my, _mw, _mh, 0, 0, _w, _h)
+      d.drawImage(A, _mx, _my, _mw, _mh, this.__x, this.__y, _w, _h)
 
       // d.drawImage(A, 0, 0, A.width, A.height, 0, 0, i, s)
       this.graph.style.display = ''

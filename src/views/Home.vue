@@ -29,7 +29,8 @@ export default {
     }
   },
   mounted () {
-    this.$refs.tool.setImage('http://sc.68design.net/qita7/HappyChildhood/images/RTYD_1003.jpg')
+     this.$refs.tool.setImage('timg.jpg')
+    // this.$refs.tool.setImage('http://sc.68design.net/qita7/HappyChildhood/images/RTYD_1003.jpg')
     // this.$refs.tool.setImage('http://attach.bbs.miui.com/forum/201301/25/202316i8hkklbu4rdvvhri.jpg')
     // this.test()
   },
@@ -42,6 +43,7 @@ export default {
     },
     getTagData () {
       let data = this.$refs.tool.getTagData()
+      console.log(data)
       alert(JSON.stringify(data))
     },
     saveTagData (data) {

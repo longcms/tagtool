@@ -38,10 +38,12 @@ const ShapeContextmenu = function(t) {
           })
       },
       show: function(t, e) {
-          this.additem(e),
-          this.el.style.left = t.clientX + "px",
-          this.el.style.top = t.clientY + "px",
-          this.el.style.display = "",
+          let st = document.documentElement.scrollTop
+          let top = t.clientY + st
+          this.additem(e)
+          this.el.style.left = t.clientX + "px"
+          this.el.style.top = top + "px"
+          this.el.style.display = ""
           this.bg.style.display = ""
       },
       hide: function() {
