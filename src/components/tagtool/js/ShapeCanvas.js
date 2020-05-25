@@ -133,7 +133,7 @@ function ShapeCanvas () {
       title: '移动到后面',
       shortcut: 83
     }],
-    color: 'red',
+    color: '#FF0000',
     bgColor: '#FFFFFF',
     editColor: '#00A8FF',
     context: null,
