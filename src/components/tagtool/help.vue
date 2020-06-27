@@ -232,7 +232,7 @@ export default {
         src: zoomImg,
         title: '缩放(Z)',
         shortcut: 90,
-        desc: '放大被标注图片，方便标注细节',
+        desc: '放大被标注图片，方便标注细节。双击该工具缩放恢复最初状态',
         children: [{
           type: 'zoomin',
           title: '放大',
