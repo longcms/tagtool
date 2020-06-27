@@ -199,19 +199,6 @@ function ShapeCanvas () {
       this.shapeSet.onChange = (v, n) => {
         this.dataChange(v, n)
       }
-
-      this.Contextmenu = new ShapeContextmenu({
-        data: [],
-        cancel: () => {
-          this.keyFlag = true
-        },
-        confirm: (t) => {
-          this.keyFlag = true
-          this.endSetEdit(t)
-          this.shapeSet.trigger()
-        }
-      })
-      this.Contextmenu.init()
       this.colorPicker = new ShapeColorPicker({
         el: this.el,
         color: this.color,
@@ -240,7 +227,19 @@ function ShapeCanvas () {
         }
       })
       this.info.init()
-
+      this.Contextmenu = new ShapeContextmenu({
+        data: [],
+        cancel: () => {
+          this.keyFlag = true
+        },
+        confirm: (t) => {
+          this.keyFlag = true
+          this.endSetEdit(t)
+          this.shapeSet.trigger()
+        },
+        wrap:this.el
+      })
+      this.Contextmenu.init()
       this.canvas.addEventListener('mousedown', (e) => {
         this.mousedown(e)
       }, false)

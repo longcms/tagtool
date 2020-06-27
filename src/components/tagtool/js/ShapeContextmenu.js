@@ -11,8 +11,9 @@ const ShapeContextmenu = function(t) {
           this.el.style.display = "none"
           this.bg.className = "ll-menu-bg"
           this.bg.style.display = "none"
-          document.body.appendChild(this.bg)
-          document.body.appendChild(this.el)
+          this.wrap = e.wrap || document.body
+          this.wrap.appendChild(this.bg)
+          this.wrap.appendChild(this.el)
           this.bg.addEventListener("click", () => {
               this.hide()
           }, false)
@@ -38,10 +39,10 @@ const ShapeContextmenu = function(t) {
           })
       },
       show: function(t, e) {
-          let st = document.documentElement.scrollTop
-          let top = t.clientY + st
+          let top = t.offsetY +30
+          let left = t.offsetX +40
           this.additem(e)
-          this.el.style.left = t.clientX + "px"
+          this.el.style.left = left + "px"
           this.el.style.top = top + "px"
           this.el.style.display = ""
           this.bg.style.display = ""
