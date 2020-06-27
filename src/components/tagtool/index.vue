@@ -1,5 +1,5 @@
 <template>
-  <div class="tool-wrap">
+  <div class="tool-wrap" :style="{height:height+'px'}">
     <div class="tool-info"
       :style="infoStyle">
       <div class="tool-tab-title">
@@ -86,15 +86,16 @@ export default {
     loading
   },
   computed: {
+
     infoStyle () {
       return {
         width: this.tagWidth + 'px',
-        height: this.height + 'px'
+        height: '100%'
       }
     },
     canvasStyle () {
       return {
-        height: this.height + 'px',
+        height: '100%',
         marginRight: this.tagWidth + 'px'
       }
     },
@@ -113,6 +114,8 @@ export default {
       this.sc = new ShapeCanvas()
       this.sc.init({
         el: this.$refs.toolCanvas, // 工具容器,未设置默认时body
+        box: this.$el, // 用于全屏
+        oldHeight: this.height,
         drawEnd: (data) => { // 绘制一个图形结束触发
           this.shapes = data
           this.$emit('on-data-change', data)
@@ -293,6 +296,7 @@ export default {
             transition: color 0.2s linear, background-color 0.2s linear,
               border 0.2s linear, box-shadow 0.2s linear;
             outline: 0;
+            line-height: 1.5;
             & + button {
               margin-right: 0.5em;
             }

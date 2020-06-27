@@ -372,7 +372,7 @@ const ShapePath = function (e) {
       t
     },
     getChildAttr (scale) {
-      self = this
+      let self = this
       let children = []
       if (self.children.length > 0) {
         children = self.children.map(item => {

@@ -13,6 +13,7 @@ import lassocursor from '../assets/img/cursor-lasso.png'
 import pencursor from '../assets/img/cursor-pen.png'
 import tagImg from '../assets/img/tag.png'
 import cutImg from '../assets/img/rect2.png'
+import fullImg from '../assets/img/fullscreen.png'
 
 import ShapeSet from './ShapeSet'
 import ShapeDraw from './ShapeDraw'
@@ -21,6 +22,7 @@ import ShapeEdit from './ShapeEdit'
 import ShapeColorPicker from './ShapeColorPicker'
 import ShapeContextmenu from './ShapeContextmenu'
 import ShapeInfo from './ShapeInfo'
+import ShapeFullscreen from './ShapeFullscreen'
 
 function ShapeCanvas () {
   let shapeCanvas = {
@@ -73,13 +75,14 @@ function ShapeCanvas () {
     {
       type: 'rotate',
       src: rotateImg,
-      title: '旋转(T)'
+      title: '旋转(T)',
+      shortcut: 84
     },
     {
       type: 'hand',
       src: handImg,
-      title: '移动(M)',
-      shortcut: 77
+      title: '移动(H)',
+      shortcut: 72
     }, {
       type: 'zoom',
       src: zoomImg,
@@ -125,6 +128,12 @@ function ShapeCanvas () {
       title: '黑白预览(V)',
       src: cutImg,
       shortcut: 86
+    },
+    {
+      type: 'full',
+      title: '全屏(Q)',
+      src: fullImg,
+      shortcut: 81
     }
     ],
     tool: 'point',
@@ -160,6 +169,7 @@ function ShapeCanvas () {
     y:0,
     __x:0,
     __y:0,
+    box: null,
     init (option) {
       option = option || {}
       this.el = option.el || document.body
@@ -174,6 +184,7 @@ function ShapeCanvas () {
       this.tagData = option.tagData || []
       this.itemData = option.itemData || []
       this.autoInfo = option.autoInfo || this.autoInfo
+      this.box = option.box
 
       this.context = this.canvas.getContext('2d')
       this.wrap = this.ce('div')
@@ -262,6 +273,8 @@ function ShapeCanvas () {
       document.addEventListener('keydown', this.keydownHandle = (e) => {
         this.keyDown(e)
       }, false)
+
+      ShapeFullscreen.fullscreenChange(this.resize.bind(this))
     },
     ce (tag) {
       return document.createElement(tag)
@@ -372,8 +385,8 @@ function ShapeCanvas () {
         }
       }
 
-      ['fColor', 'bColor', 'rotate', 'tag'].indexOf(e) === -1 ? (this.tool = e, this.keyFlag = true,
-        this.setCursor(e)) : this.keyFlag = false, this.toolhandleClick(e),
+      ['fColor', 'bColor', 'rotate', 'tag','full'].indexOf(e) === -1 ? (this.tool = e, this.keyFlag = true,
+        this.setCursor(e)) : this.keyFlag = true, this.toolhandleClick(e),
         this.setToolbar(t)
       if (this.tool === 'cut') {
         this.cut()
@@ -381,6 +394,7 @@ function ShapeCanvas () {
     },
     toolbarDblclick: function (t) {
       t.currentTarget.tool === 'zoom' && (this.zoomScale = 1, this.multiple = 0,
+        this.x =0,this.y=0,
         this.zoomSize(1))
     },
     statusClick: function (t) {
@@ -426,7 +440,7 @@ function ShapeCanvas () {
     mousewheel: function (t) {
       var e = 0
       if (t.wheelDelta ? e = t.wheelDelta > 0 ? 1 : -1 : t.detail && (e = t.detail < 0 ? 1 : -1),
-        e && this.tool === 'zoom') {
+        e && (this.tool === 'zoom'||this.tool === 'hand')) {
         this.canvas.style.cursor = 'default',
           this.downX = t.offsetX,
           this.downY = t.offsetY
@@ -443,21 +457,30 @@ function ShapeCanvas () {
       }
     },
     keyDown: function (t) {
-      var e = t.which || t.keyCode
-      if (!this.keyFlag) {
+      if(t.target.nodeName==='INPUT' || t.target.nodeName==='TEXTAREA'){
         return
       }
+      if(ShapeFullscreen.isFullScreen()){
+        t.preventDefault()
+      }
+      var e = t.which || t.keyCode
       if (e === 90 && t.ctrlKey) {
+        t.preventDefault()
         this.revoke()
       } else if (e === 89 && t.ctrlKey) {
+        t.preventDefault()
         this.redo()
       } else if (e === 46) {
+        t.preventDefault()
         this.delete()
-      } else if (t.altKey) {
+      } else {
         var o = this.tools.filter(function (t) {
           return t.shortcut === e
         })
-        o.length > 0 && this.toolbarClick(o[0].type)
+        if(o.length > 0){
+          t.preventDefault()
+          this.toolbarClick(o[0].type)
+        } 
       }
     },
     contextmenu: function (t) {
@@ -914,7 +937,8 @@ function ShapeCanvas () {
       if(this.shapeSet.items[editIndex]) {
         this.endSetEdit(this.shapeSet.items[editIndex],1)
       }
-     
+      this.usedX = this.moveX
+      this.usedY = this.moveY
       this.handMove()
     },
     rotateImage: function (can) {
@@ -1103,16 +1127,29 @@ function ShapeCanvas () {
     toolhandleClick: function (t) {
       switch (t) {
         case 'fColor':
-          this.colorPicker.show(this.color, t)
+          this.fColor = !this.fColor
+          if(this.fColor){
+            this.colorPicker.show(this.color, t)
+          }else {
+            this.colorPicker.hide()
+          }
           break
         case 'bColor':
-          this.colorPicker.show(this.bgColor, t)
+          this.bColor = !this.bColor
+          if(this.bColor){
+            this.colorPicker.show(this.bgColor, t)
+          }else {
+            this.colorPicker.hide()
+          }
           break
         case 'rotate':
           this.rotate()
           break
         case 'tag':
           this.setInfo()
+          break
+        case 'full':
+          this.setFullscreen()
           break
       }
     },
@@ -1198,12 +1235,10 @@ function ShapeCanvas () {
       _oy = this.y
       _x = (e + _ox)/t * this.zoomScale - e 
       _y = (o + _oy)/t * this.zoomScale - o
-      
-      // _x = _x < 0 ? 0 : _x
-      // _y = _y < 0 ? 0 : _y
       _w = i -_x - vW > 0 ? vW : i-_x
       _h = s -_y - vH > 0 ? vH : s-_y
-      
+      // _w = i-_x
+      // _h = s-_y
       // _w = _w < this.width ? (_x = i-this.width, this.width) : _w
       // _h = _h < this.height ? (_y = s-this.height, this.height)  : _h
 
@@ -1211,10 +1246,6 @@ function ShapeCanvas () {
       var _my = A.height * _y / s
       var _mw = A.width * _w / i
       var _mh = A.height * _h / s
-      // this.graph.width = _w
-      // this.graph.height = _h
-      // this.canvas.width = _w
-      // this.canvas.height = _h
       this.x = _x
       this.y = _y
       d.clearRect(0, 0, this.graph.width, this.graph.height)
@@ -1223,7 +1254,8 @@ function ShapeCanvas () {
       } else {
         d.imageSmoothingEnabled = false
       }
-      d.drawImage(A, _mx, _my, _mw, _mh, this.__x, this.__y, _w, _h)
+      // d.drawImage(A, _mx, _my, _mw, _mh, this.__x, this.__y, _w, _h)
+      this.drawImage(A, _mx, _my, _mw, _mh, this.__x, this.__y, _w, _h)
       this.graph.style.display = ''
       this.dataChange()
       // this.setCanvas()
@@ -1246,30 +1278,22 @@ function ShapeCanvas () {
       _oy = this.y
       _x = _ox - t
       _y = _oy - e
-      // _x = _x < 0 ? 0 : _x
-      // _y = _y < 0 ? 0 : _y
       _w = i -_x - vW > 0 ? vW : i-_x
       _h = s -_y - vH > 0 ? vH : s-_y
-      // _w = _w < this.width ? (_x = i-this.width, this.width) : _w
-      // _h = _h < this.height ? (_y = s-this.height, this.height)  : _h
 
       var _mx = A.width * _x / i
       var _my = A.height * _y / s
       var _mw = A.width * _w / i
       var _mh = A.height * _h / s
-      // this.graph.width = _w
-      // this.graph.height = _h
-      // this.canvas.width = _w
-      // this.canvas.height = _h
       this.x = _x
       this.y = _y
       d.clearRect(0, 0, this.graph.width, this.graph.height)
-      d.drawImage(A, _mx, _my, _mw, _mh, this.__x, this.__y, _w, _h)
-
-      // d.drawImage(A, 0, 0, A.width, A.height, 0, 0, i, s)
+      
+      // d.drawImage(A, _mx, _my, _mw, _mh, this.__x, this.__y, _w, _h)
+      this.drawImage(A, _mx, _my, _mw, _mh, this.__x, this.__y, _w, _h)
+      
       this.graph.style.display = ''
       this.dataChange()
-
     },
     endSetEdit: function (t, flag) {
       ShapeEdit.shape && (ShapeEdit.shape.selected = !1)
@@ -1409,6 +1433,63 @@ function ShapeCanvas () {
     setTempinfo (t, d) {
       this.tempTitle = t
       this.tempDesc = d
+    },
+    setFullscreen() {
+      if(!ShapeFullscreen.isFullScreen()){
+        this.fullscreen()
+      }else{
+        this.exitFullscreen()
+      }
+    },
+    fullscreen () {
+      let box = this.box || this.el
+      this.oldHeight = box.offsetHeight
+      ShapeFullscreen.fullscreen(box)
+    },
+    exitFullscreen() {
+      ShapeFullscreen.exitFullscreen()
+    },
+    resize() {
+      let box = this.box || this.el
+      box.style.height = ShapeFullscreen.isFullScreen()?'100%':this.oldHeight+'px'
+      let data = this.getData()
+      this.setData(data)
+    },
+    drawImage(A, _mx, _my, _mw, _mh, __x, __y, _w, _h) {
+      let d = this.graph.getContext('2d')
+      let sx,sy,sw,sh,x,y,w,h
+      if(_mx < 0){
+        sx = 0
+        sw = _mx + _mw
+        x = -_mx
+      } else {
+        sx = _mx
+        sw = _mw
+        x = 0
+      }
+      x = x*this.zoomScale*this.scale
+      if(this.x < 0){
+        w = _w + this.x
+      } else {
+        w = _w
+      }
+      if(_my < 0){
+        sy = 0
+        sh = _my + _mh
+        y = -_my
+      } else {
+        sy = _my
+        sh = _mh
+        y = 0
+        h = _h 
+      }
+      y = y*this.zoomScale*this.scale
+      if(this.y < 0){
+        h = _h + this.y
+      } else {
+        h = _h
+      }
+      d.drawImage(A, sx, sy, sw, sh, x, y, w, h)
     }
   }
 

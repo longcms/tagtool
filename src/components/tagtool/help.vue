@@ -8,7 +8,7 @@
     <dl>
       <dt>2、工具说明</dt>
       <dd>
-        <p>鼠标放到工具栏上对应工具的图标，会有气泡提示，其中括号中的字母就是对应的快捷键，【 例如：选择(S)，对应的快捷键 alt + s 】</p>
+        <p>鼠标放到工具栏上对应工具的图标，会有气泡提示，其中括号中的字母就是对应的快捷键，【 例如：选择(S)，对应的快捷键 s 】</p>
       </dd>
       <dd>
         <template v-for="(i,k) in tools">
@@ -142,6 +142,8 @@ import zoomoutImg from './assets/img/zoomin.png'
 import tagImg from './assets/img/tag.png'
 import fcolorImg from './assets/img/fcolor.png'
 import bcolorImg from './assets/img/bcolor.png'
+import cutImg from './assets/img/rect2.png'
+import fullImg from './assets/img/fullscreen.png'
 
 import taginfoImg from '@/assets/taginfo.png'
 import colorImg from '@/assets/color.png'
@@ -222,8 +224,8 @@ export default {
       {
         type: 'hand',
         src: handImg,
-        title: '移动(M)',
-        shortcut: 77,
+        title: '移动(H)',
+        shortcut: 72,
         desc: '被标注图在放大的模式下，被挡住的部分可以通过该移动工具移动到可视化区域中。'
       }, {
         type: 'zoom',
@@ -271,8 +273,22 @@ export default {
         title: '标记信息(I)',
         src: tagImg,
         shortcut: 73,
-        desc: '为标注的图片增加标注说明',
+        desc: '为标注的图片增加标注说明,ctrl+s 确定保存，ctrl+x取消',
         pimg: taginfoImg
+      },
+      {
+        type: 'cut',
+        title: '黑白预览(V)',
+        src: cutImg,
+        shortcut: 86,
+        desc: '黑白预览'
+      },
+      {
+        type: 'full',
+        title: '全屏(Q)',
+        src: fullImg,
+        shortcut: 81,
+        desc: '全屏按钮'
       }
       ]
     }

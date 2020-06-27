@@ -68,6 +68,32 @@ const ShapeInfo = (option) => {
         }, 350);
       }, false)
 
+      this.titleInput.addEventListener('keydown', (e) => {
+        e.stopPropagation()
+        var code = e.which || e.keyCode
+        if(e.ctrlKey && code === 83){
+          e.preventDefault()
+          this.confirm()
+        } else if(e.ctrlKey && code === 88){
+          e.preventDefault()
+          this.cancel()
+          return false
+        }
+      }, false)
+      this.descInput.addEventListener('keydown', (e) => {
+        e.stopPropagation()
+        var code = e.which || e.keyCode
+        if(e.ctrlKey && code === 83){
+          e.preventDefault()
+          e.cancelBubble = true
+          this.confirm()
+        } else if(e.ctrlKey && code === 88){
+          e.preventDefault()
+          this.cancel()
+          return false
+        }
+      }, false)
+
       this.okBtn.addEventListener('click', (e) => {
         this.confirm()
       }, false)
@@ -100,6 +126,7 @@ const ShapeInfo = (option) => {
         btn.addEventListener('click', () => {
           this.titleInput.value = a[i].title
           this.descInput.value = a[i].desc
+          this.focus()
         }, false)
         this.tagDiv.appendChild(btn)
       }
@@ -138,9 +165,7 @@ const ShapeInfo = (option) => {
       this.titleInput.value = t
       this.descInput.value = i
       this.op = op
-      // setTimeout(() => {
-      //   this.titleInput.focus()
-      // }, 100)
+      this.focus()
     },
     hide () {
       this.el.style.display = 'none'
@@ -186,6 +211,11 @@ const ShapeInfo = (option) => {
           this.tagUl.appendChild(li)
         })
       }
+    },
+    focus(){
+      setTimeout(() => {
+        this.titleInput.focus()
+      }, 100)
     }
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <img :src="logo"/>
-    <p>v1.0.0</p>
+    <p>v1.1.1</p>
     <div id="nav">
       <router-link to="/">TagTool</router-link> |
       <router-link to="/about">使用说明</router-link>
