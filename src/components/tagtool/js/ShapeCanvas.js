@@ -1308,7 +1308,7 @@ function ShapeCanvas () {
         this.drawEnd && this.drawEnd(this.getData())
         this.setInfo()
       } else {
-        if(this.tempTitle.length>0){
+        if(this.tempTitle.length>0 && !flag){
           this.saveInfo(this.tempTitle, this.tempDesc)
         }
       }
